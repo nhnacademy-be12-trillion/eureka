@@ -48,4 +48,4 @@ jobs:
         username: ${{ secrets.SSH_ID }}
         password: ${{ secrets.SSH_PASSWORD }}
         port: ${{ secrets.SSH_PORT }}
-        script: "cd ~/eureka&&pwd&&ls&&sh startup.sh"
+        script: "cd ~/eureka&&pwd&&ls&& ./startup.sh"
