@@ -11,9 +11,7 @@ eureka:
 
 #    Eureka 클러스터 주소 설정
     service-url:
-      defaultZone: \
-        http://${spring.security.user.name}:${spring.security.user.password}@127.0.0.1:10419/eureka/, \
-        http://${spring.security.user.name}:${spring.security.user.password}@127.0.0.1:10420/eureka/
+      defaultZone: http://${spring.security.user.name}:${spring.security.user.password}@127.0.0.1:10419/eureka/,http://${spring.security.user.name}:${spring.security.user.password}@127.0.0.1:10420/eureka/
 
   instance:
     prefer-ip-address: true
