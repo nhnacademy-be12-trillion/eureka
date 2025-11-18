@@ -1,0 +1,8 @@
+spring:
+  application:
+    name: coupon-service
+  profiles:
+    active: 10413
+
+server:
+  port: 10413

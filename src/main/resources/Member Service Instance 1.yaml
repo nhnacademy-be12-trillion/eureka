@@ -1,0 +1,8 @@
+spring:
+  application:
+    name: member-service # Eureka에 등록될 서비스 이름 (공유)
+  profiles:
+    active: 10407
+
+server:
+  port: 10407

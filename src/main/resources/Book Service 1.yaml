@@ -1,0 +1,8 @@
+spring:
+  application:
+    name: book-service
+  profiles:
+    active: 10409
+
+server:
+  port: 10409

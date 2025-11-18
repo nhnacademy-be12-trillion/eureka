@@ -1,0 +1,8 @@
+spring:
+  application:
+    name: search-service
+  profiles:
+    active: 10416
+
+server:
+  port: 10416
