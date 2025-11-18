@@ -1,8 +1,6 @@
 spring:
   application:
     name: eureka-service
-  profiles:
-    active: 10419
   security:
     user:
       name: be12-team1
