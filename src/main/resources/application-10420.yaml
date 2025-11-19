@@ -1,20 +1,7 @@
-spring:
-  application:
-    name: eureka-service
-  security:
-    user:
-      name: be12-team1
-      password: nhnacademy123!
-
 server:
   port: 10420
 
 eureka:
   client:
-    register-with-eureka: true
-    fetch-registry: true
     service-url:
       defaultZone: http://${spring.security.user.name}:${spring.security.user.password}@127.0.0.1:10419/eureka/
-
-  instance:
-    hostname: 127.0.0.1

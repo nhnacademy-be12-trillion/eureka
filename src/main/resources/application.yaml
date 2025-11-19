@@ -1,0 +1,25 @@
+spring:
+  application:
+    name: eureka-server
+  lifecycle:
+    timeout-per-shutdown-phase: 10s
+  security:
+    user:
+      name: be12-team1
+      password: nhnacademy123!
+  profiles:
+    active: 10419
+
+
+server:
+  shutdown: graceful
+
+eureka:
+  client:
+    register-with-eureka: false
+    fetch-registry: false
+
+
+  instance:
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${server.port}
