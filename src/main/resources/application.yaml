@@ -7,12 +7,11 @@ spring:
     user:
       name: be12-team1
       password: "nhnacademy123!"
-  profiles:
-    active: 10419
 
 
 server:
   shutdown: graceful
+  port: 10419
 
 eureka:
   client:
