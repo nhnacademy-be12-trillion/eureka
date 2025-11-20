@@ -1,7 +1,12 @@
-server:
-  port: 10420
-
 eureka:
+  instance:
+    registry:
+      # Value used in determining when leases are cancelled,
+      #   default to 1 for standalone.
+      # Should be set to 0 for peer replicated eurekas
+      default-open-for-traffic-count: 0
   client:
     service-url:
       defaultZone: http://${spring.security.user.name}:${spring.security.user.password}@127.0.0.1:10419/eureka/
+server:
+  port: 10420
