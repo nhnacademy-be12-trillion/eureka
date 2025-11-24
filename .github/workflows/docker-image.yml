@@ -2,9 +2,9 @@ name: Docker Image CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "dev" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "dev" ]
 
 env:
   # 🎯 환경 변수 설정: GitHub Packages 주소
@@ -38,7 +38,3 @@ jobs:
           context: .
           push: true # 👈 이 옵션이 이미지를 레지스트리로 전송합니다.
           tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest # latest 태그 사용
-          # 💡 배포 환경에서 롤백을 위해 SHA 태그도 추가
-          tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
