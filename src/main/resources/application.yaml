@@ -6,25 +6,25 @@ spring:
   security:
     user:
       name: be12-team1
-      password: nhnacademy123! # <--- 서버 B가 접속할 때 사용
+      password: nhnacademy123!
 
 server:
   shutdown: graceful
-  port: 10419 # <--- A의 포트
+  # ⚠️ 수정됨: 외부에서 SERVER_PORT를 주입받음 (기본값 8761)
+  port: ${SERVER_PORT:8761}
 
 eureka:
   client:
-    # 이중화를 위해 서로에게 등록해야 합니다. (기존: false -> 수정: true)
     register-with-eureka: true
-    # 이중화를 위해 서로의 레지스트리를 가져와야 합니다. (기존: false -> 수정: true)
     fetch-registry: true
     service-url:
-      # 🎯 상대방(Peer B: 10420)의 주소를 defaultZone에 지정합니다.
-      defaultZone: http://${spring.security.user.name}:${spring.security.user.password}@127.0.0.1:10420/eureka/
+      # ⚠️ 수정됨: 외부에서 상대방 주소(EUREKA_PEER_URL)를 주입받음
+      defaultZone: ${EUREKA_PEER_URL}
 
   instance:
     prefer-ip-address: true
+    # 호스트네임은 도커 내부의 호스트네임을 사용
+    hostname: ${HOSTNAME}
     instance-id: ${spring.application.name}:${server.port}
     registry:
-      # 피어 복제 시 0으로 설정하는 것이 일반적이며 올바른 설정입니다.
       default-open-for-traffic-count: 0
