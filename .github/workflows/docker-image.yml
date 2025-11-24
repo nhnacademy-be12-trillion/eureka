@@ -1,0 +1,40 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ "dev" ]
+  pull_request:
+    branches: [ "dev" ]
+
+env:
+  # 🎯 환경 변수 설정: GitHub Packages 주소
+  REGISTRY: ghcr.io
+  # 🎯 이미지 이름 설정: (소유자/저장소명)
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  build_and_push: # Job 이름을 build_and_push로 변경
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write # 👈 Packages에 쓰기 권한이 필수입니다!
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      # 1. GitHub Packages에 로그인 (GITHUB_TOKEN 사용)
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }} # 👈 현재 워크플로를 실행한 사용자 ID
+          password: ${{ secrets.GHCR_TOKEN }} # 👈 GitHub에서 자동 제공하는 토큰 사용
+
+      # 2. 이미지 빌드 및 푸시
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true # 👈 이 옵션이 이미지를 레지스트리로 전송합니다.
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest # latest 태그 사용
