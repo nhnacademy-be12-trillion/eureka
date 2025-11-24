@@ -10,7 +10,7 @@ on:
 # 2. 전역 변수를 정의합니다.
 env:
   # 여러분의 GitHub 계정 이름
-  REGISTRY_OWNER: serrot24
+  REGISTRY_OWNER: nhnacademy-be12-trillion
   # GitHub Packages 레지스트리 주소
   REGISTRY: ghcr.io
   # 빌드할 도커 이미지 이름 (소문자로 작성)
