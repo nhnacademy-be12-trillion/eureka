@@ -1,9 +1,13 @@
-FROM openjdk:17.0.17-jdk-slim-buster AS builder
-
+FROM maven:3.9.5-jdk-17 AS builder
 WORKDIR /app
 
-COPY target/eureka-0.0.1-SNAPSHOT.jar /app/app.jar
+COPY . .
 
+RUN mvn clean package -DskipTests
+
+FROM openjdk:17-jre-slim-bookworm
+WORKDIR /app
+
+COPY --from=builder /app/target/*.jar /app/app.jar
 EXPOSE 8080
-
 ENTRYPOINT ["java", "-jar", "app.jar"]
