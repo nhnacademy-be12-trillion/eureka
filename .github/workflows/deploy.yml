@@ -70,10 +70,7 @@ jobs:
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
-          # private_key 대신 password를 사용하면 보안에 취약할 수 있으므로
-          # scp-action에서 key를 사용했듯이 key를 사용하는 것을 권장합니다.
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          # docker-compose.yml 전송과 SSH 배포를 하나의 액션으로 처리하여 줄였습니다.
+          password: ${{ secrets.SSH_PASSWORD }}
           script: |
             # 1. 파일 전송 (scp 명령어로 직접 처리)
             echo "Transferring docker-compose.yml..."
