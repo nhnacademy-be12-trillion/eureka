@@ -6,7 +6,7 @@ spring:
   security:
     user:
       name: be12-team1
-      password: "nhnacademy123!" # <--- 서버 B가 접속할 때 사용
+      password: nhnacademy123! # <--- 서버 B가 접속할 때 사용
 
 server:
   shutdown: graceful
