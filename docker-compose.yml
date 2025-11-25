@@ -31,7 +31,7 @@ services:
     image: ghcr.io/nhnacademy-be12-trillion/front:latest
     container_name: front
     ports:
-      - "10403:80"
+      - "10402:80"
     networks:
       - msa-network
 

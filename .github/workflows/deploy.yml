@@ -83,6 +83,7 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           script: |
             echo "SSH 접속 및 배포 디렉토리 이동..."
+            mkdir -p ${DEPLOY_DIR}
             cd ${{ env.DEPLOY_DIR }}
             
             echo "Docker Registry 로그인..."
