@@ -27,14 +27,6 @@ services:
     networks:
       - msa-network
 
-  front-server:
-    image: ghcr.io/nhnacademy-be12-trillion/front:latest
-    container_name: front
-    ports:
-      - "10402:80"
-    networks:
-      - msa-network
-
   gateway-peer1:
     image: ghcr.io/nhnacademy-be12-trillion/gateway:latest
     container_name: gateway-peer1
@@ -54,6 +46,38 @@ services:
     environment:
       - SERVER_PORT=10401
       - EUREKA_URL=http://be12-team1:nhnacademy123!@eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@eureka-peer2:10420/eureka/
+    networks:
+      - msa-network
+
+  member-service:
+    image: ghcr.io/nhnacademy-be12-trillion/member-service:latest
+    container_name: member
+    ports:
+      - "10403:10403"
+    networks:
+      - msa-network
+
+  order-service:
+    image: ghcr.io/nhnacademy-be12-trillion/order-service:latest
+    container_name: member
+    ports:
+      - "10404:10404"
+    networks:
+      - msa-network
+
+  book-service:
+    image: ghcr.io/nhnacademy-be12-trillion/member-service:latest
+    container_name: member
+    ports:
+      - "10406:10406"
+    networks:
+      - msa-network
+
+  front-server:
+    image: ghcr.io/nhnacademy-be12-trillion/front:latest
+    container_name: front
+    ports:
+      - "10402:80"
     networks:
       - msa-network
 
