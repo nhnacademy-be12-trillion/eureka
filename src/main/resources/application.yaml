@@ -10,15 +10,13 @@ spring:
 
 server:
   shutdown: graceful
-  # ⚠️ 수정됨: 외부에서 SERVER_PORT를 주입받음 (기본값 8761)
-  port: ${SERVER_PORT:8761}
+  port: ${SERVER_PORT:10419}
 
 eureka:
   client:
     register-with-eureka: true
     fetch-registry: true
     service-url:
-      # ⚠️ 수정됨: 외부에서 상대방 주소(EUREKA_PEER_URL)를 주입받음
       defaultZone: ${EUREKA_PEER_URL}
 
   instance:

@@ -89,8 +89,14 @@ jobs:
             echo "Docker Registry 로그인..."
             echo ${{ secrets.GHCR_TOKEN }} | docker login ${{ env.REGISTRY }} -u ${{ env.REGISTRY_OWNER }} --password-stdin
             
-            echo "최신 이미지 Pull 및 컨테이너 재실행..."
-            docker-compose pull eureka-peer1 eureka-peer2 # 명령어를 하나로 통합
-            docker-compose up -d
+            echo "최신 이미지 Pull 및 Peer1 재실행..."
+            docker-compose pull eureka-peer1
+            docker-compose up -d --no-deps --force-recreate eureka-peer1
             
-            echo "Eureka Cluster 배포 완료!"
+            while ! curl -s http://localhost:10419/actuator/health | grep UP; do sleep 5; done
+            
+            echo "최신 이미지 Pull 및 Peer2 재실행..."
+            docker-compose pull eureka-peer2
+            docker-compose up -d --no-deps --force-recreate eureka-peer2
+            
+            echo "Eureka Cluster 롤링 배포 완료!"

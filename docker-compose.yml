@@ -1,6 +1,17 @@
 version: '3.8'
 
 services:
+  config-server:
+    image: ghcr.io/nhnacademy-be12-trillion/config-server:latest
+    container_name: config-server
+    ports:
+      - "10418:10418"
+    volumes:
+      - ~/keygen/github_rsa:/root/.ssh/id_rsa:ro
+    environment:
+      - EUREKA_URL=http://be12-team1:nhnacademy123!@eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@eureka-peer2:10420/eureka/
+      - SERVER_PORT=10418
+
   # 첫 번째 유레카 서버 (포트 10419)
   eureka-peer1:
     image: ghcr.io/nhnacademy-be12-trillion/eureka:latest
@@ -49,32 +60,74 @@ services:
     networks:
       - msa-network
 
-  member-service:
+  member-peer1:
     image: ghcr.io/nhnacademy-be12-trillion/member-service:latest
-    container_name: member
+    container_name: member-peer1
     ports:
       - "10403:10403"
+    environment:
+      - SERVER_PORT=10403
+      - EUREKA_URL=http://be12-team1:nhnacademy123!@eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@eureka-peer2:10420/eureka/
     networks:
       - msa-network
 
-  order-service:
-    image: ghcr.io/nhnacademy-be12-trillion/order-service:latest
-    container_name: member
+  member-peer2:
+    image: ghcr.io/nhnacademy-be12-trillion/member-service:latest
+    container_name: member-peer2
     ports:
       - "10404:10404"
+    environment:
+      - SERVER_PORT=10404
+      - EUREKA_URL=http://be12-team1:nhnacademy123!@eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@eureka-peer2:10420/eureka/
     networks:
       - msa-network
 
-  book-service:
-    image: ghcr.io/nhnacademy-be12-trillion/member-service:latest
-    container_name: member
+  book-peer1:
+    image: ghcr.io/nhnacademy-be12-trillion/book-service:latest
+    container_name: book-peer1
+    ports:
+      - "10405:10405"
+    environment:
+      - SERVER_PORT=10405
+      - EUREKA_URL=http://be12-team1:nhnacademy123!@eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@eureka-peer2:10420/eureka/
+    networks:
+      - msa-network
+
+  book-peer2:
+    image: ghcr.io/nhnacademy-be12-trillion/book-service:latest
+    container_name: book-peer2
     ports:
       - "10406:10406"
+    environment:
+      - SERVER_PORT=10406
+      - EUREKA_URL=http://be12-team1:nhnacademy123!@eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@eureka-peer2:10420/eureka/
+    networks:
+      - msa-network
+
+  order-peer1:
+    image: ghcr.io/nhnacademy-be12-trillion/order-service:latest
+    container_name: order-peer1
+    ports:
+      - "10407:10407"
+    environment:
+      - SERVER_PORT=10407
+      - EUREKA_URL=http://be12-team1:nhnacademy123!@eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@eureka-peer2:10420/eureka/
+    networks:
+      - msa-network
+
+  order-peer2:
+    image: ghcr.io/nhnacademy-be12-trillion/order-service:latest
+    container_name: order-peer2
+    ports:
+      - "10408:10408"
+    environment:
+      - SERVER_PORT=10408
+      - EUREKA_URL=http://be12-team1:nhnacademy123!@eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@eureka-peer2:10420/eureka/
     networks:
       - msa-network
 
   front-server:
-    image: ghcr.io/nhnacademy-be12-trillion/front:latest
+    image: ghcr.io/nhnacademy-be12-trillion/front-server:latest
     container_name: front
     ports:
       - "10402:80"
