@@ -6,11 +6,12 @@ services:
     container_name: config-server
     ports:
       - "10418:10418"
-    volumes:
-      - ~/keygen/github_rsa:/root/.ssh/id_rsa:ro
     environment:
       - EUREKA_URL=http://be12-team1:nhnacademy123!@eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@eureka-peer2:10420/eureka/
       - SERVER_PORT=10418
+      - SPRING_CLOUD_CONFIG_SERVER_GIT_PRIVATEKEY=${CONFIG_SERVER_PRIVATE_KEY}
+      - SPRING_CLOUD_CONFIG_SERVER_GIT_URI=git@github.com:nhnacademy-be12-trillion/config-repo.git
+      - SPRING_CLOUD_CONFIG_SERVER_GIT_IGNORELOCALSSHSETTINGS=true
 
   # 첫 번째 유레카 서버 (포트 10419)
   eureka-peer1:
