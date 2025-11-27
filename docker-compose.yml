@@ -12,6 +12,8 @@ services:
       - SPRING_CLOUD_CONFIG_SERVER_GIT_PRIVATEKEY=${CONFIG_SERVER_PRIVATE_KEY}
       - SPRING_CLOUD_CONFIG_SERVER_GIT_URI=git@github.com:nhnacademy-be12-trillion/config-repo.git
       - SPRING_CLOUD_CONFIG_SERVER_GIT_IGNORELOCALSSHSETTINGS=true
+    networks:
+      - msa-network
 
   # 첫 번째 유레카 서버 (포트 10419)
   eureka-peer1:
