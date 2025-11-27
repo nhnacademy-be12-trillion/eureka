@@ -82,11 +82,11 @@ jobs:
           username: ${{ secrets.SSH_ID }}
           password: ${{ secrets.SSH_PASSWORD }}
           port: ${{ secrets.SSH_PORT }}
-          env:
-            DEPLOY_DIR: ${{ env.DEPLOY_DIR }}
-            GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
-            REGISTRY: ${{ env.REGISTRY }}
-            REGISTRY_OWNER: ${{ env.REGISTRY_OWNER }}
+          envs: |
+            DEPLOY_DIR=${{ env.DEPLOY_DIR }}
+            GHCR_TOKEN=${{ secrets.GHCR_TOKEN }}
+            REGISTRY=${{ env.REGISTRY }}
+            REGISTRY_OWNER=${{ env.REGISTRY_OWNER }}
           script: |
             echo "SSH 접속 및 배포 디렉토리 이동..."
             mkdir -p ${DEPLOY_DIR}
