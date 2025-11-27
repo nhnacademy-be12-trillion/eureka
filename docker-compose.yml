@@ -46,6 +46,7 @@ services:
     environment:
       - SERVER_PORT=10400
       - EUREKA_URL=http://be12-team1:nhnacademy123!@eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@eureka-peer2:10420/eureka/
+      - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@config-server:10418/
     networks:
       - msa-network
 
@@ -57,6 +58,7 @@ services:
     environment:
       - SERVER_PORT=10401
       - EUREKA_URL=http://be12-team1:nhnacademy123!@eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@eureka-peer2:10420/eureka/
+      - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@config-server:10418/
     networks:
       - msa-network
 
@@ -68,6 +70,7 @@ services:
     environment:
       - SERVER_PORT=10403
       - EUREKA_URL=http://be12-team1:nhnacademy123!@eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@eureka-peer2:10420/eureka/
+      - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@config-server:10418/
     networks:
       - msa-network
 
@@ -79,6 +82,7 @@ services:
     environment:
       - SERVER_PORT=10404
       - EUREKA_URL=http://be12-team1:nhnacademy123!@eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@eureka-peer2:10420/eureka/
+      - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@config-server:10418/
     networks:
       - msa-network
 
@@ -90,6 +94,7 @@ services:
     environment:
       - SERVER_PORT=10405
       - EUREKA_URL=http://be12-team1:nhnacademy123!@eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@eureka-peer2:10420/eureka/
+      - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@config-server:10418/
     networks:
       - msa-network
 
@@ -101,6 +106,7 @@ services:
     environment:
       - SERVER_PORT=10406
       - EUREKA_URL=http://be12-team1:nhnacademy123!@eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@eureka-peer2:10420/eureka/
+      - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@config-server:10418/
     networks:
       - msa-network
 
@@ -112,6 +118,7 @@ services:
     environment:
       - SERVER_PORT=10407
       - EUREKA_URL=http://be12-team1:nhnacademy123!@eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@eureka-peer2:10420/eureka/
+      - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@config-server:10418/
     networks:
       - msa-network
 
@@ -123,6 +130,43 @@ services:
     environment:
       - SERVER_PORT=10408
       - EUREKA_URL=http://be12-team1:nhnacademy123!@eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@eureka-peer2:10420/eureka/
+      - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@config-server:10418/
+    networks:
+      - msa-network
+
+  coupon-service:
+    image: ghcr.io/nhnacademy-be12-trillion/coupon-service:latest
+    container_name: coupon-peer
+    ports:
+      - "10409:10409"
+    environment:
+      - SERVER_PORT=10409
+      - EUREKA_URL=http://be12-team1:nhnacademy123!@eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@eureka-peer2:10420/eureka/
+      - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@config-server:10418/
+    networks:
+      - msa-network
+
+  search-peer1:
+    image: ghcr.io/nhnacademy-be12-trillion/coupon-service:latest
+    container_name: search-peer1
+    ports:
+      - "10410:10410"
+    environment:
+      - SERVER_PORT=10410
+      - EUREKA_URL=http://be12-team1:nhnacademy123!@eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@eureka-peer2:10420/eureka/
+      - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@config-server:10418/
+    networks:
+      - msa-network
+
+  search-peer2:
+    image: ghcr.io/nhnacademy-be12-trillion/coupon-service:latest
+    container_name: search-peer2
+    ports:
+      - "10411:10411"
+    environment:
+      - SERVER_PORT=10411
+      - EUREKA_URL=http://be12-team1:nhnacademy123!@eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@eureka-peer2:10420/eureka/
+      - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@config-server:10418/
     networks:
       - msa-network
 
