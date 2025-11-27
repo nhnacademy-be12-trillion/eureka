@@ -81,10 +81,15 @@ jobs:
           username: ${{ secrets.SSH_ID }}
           password: ${{ secrets.SSH_PASSWORD }}
           port: ${{ secrets.SSH_PORT }}
+        env:
+          DEPLOY_DIR: ${{ env.DEPLOY_DIR }}
+          GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
+          REGISTRY: ${{ env.REGISTRY }}
+          REGISTRY_OWNER: ${{ env.REGISTRY_OWNER }}
           script: |
             echo "SSH 접속 및 배포 디렉토리 이동..."
             mkdir -p ${DEPLOY_DIR}
-            cd ${{ env.DEPLOY_DIR }}
+            cd ${DEPLOY_DIR}
             
             lsof -t -i :10419 | xargs -r kill -9
   
@@ -92,7 +97,7 @@ jobs:
             docker-compose down
             
             echo "Docker Registry 로그인..."
-            echo ${{ secrets.GHCR_TOKEN }} | docker login ${{ env.REGISTRY }} -u ${{ env.REGISTRY_OWNER }} --password-stdin
+            echo ${GHCR_TOKEN} | docker login ${REGISTRY} -u ${REGISTRY_OWNER} --password-stdin
             
             echo "최신 이미지 Pull 및 Peer1 재실행..."
             docker-compose pull eureka-peer1
