@@ -59,6 +59,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
+          file: ./Dockerfile
           push: true
           tags: ${{ steps.meta.outputs.tags }}
 
@@ -82,20 +83,10 @@ jobs:
           username: ${{ secrets.SSH_ID }}
           password: ${{ secrets.SSH_PASSWORD }}
           port: ${{ secrets.SSH_PORT }}
-          envs:
-            DEPLOY_DIR=${{ env.DEPLOY_DIR }}
-            GHCR_TOKEN=${{ secrets.GHCR_TOKEN }}
-            REGISTRY=${{ env.REGISTRY }}
-            REGISTRY_OWNER=${{ env.REGISTRY_OWNER }}
           script: |
-            DEPLOY_DIR="${DEPLOY_DIR}"
-            GHCR_TOKEN="${GHCR_TOKEN}"
-            REGISTRY="${REGISTRY}"
-            REGISTRY_OWNER="${REGISTRY_OWNER}"
-            
             echo "SSH 접속 및 배포 디렉토리 이동..."
-            mkdir -p ${DEPLOY_DIR}
-            cd ${DEPLOY_DIR}
+            mkdir -p ${{ env.DEPLOY_DIR }}
+            cd ${{ env.DEPLOY_DIR }}
             
             lsof -t -i :10419 | xargs -r kill -9
   
@@ -103,18 +94,12 @@ jobs:
             docker-compose down
             
             echo "Docker Registry 로그인..."
-            echo ${GHCR_TOKEN} | docker login ${REGISTRY} -u ${REGISTRY_OWNER} --password-stdin
+            echo ${{secrets.GHCR_TOKEN}} | docker login ${{ env.REGISTRY }} -u ${{ env.REGISTRY_OWNER }} --password-stdin
             
             echo "최신 이미지 Pull 및 Peer1 재실행..."
             docker-compose pull eureka-peer1
             docker-compose up -d --no-deps --force-recreate eureka-peer1
-            
-            if printf "%s" "${GHCR_TOKEN}" | docker login "${REGISTRY}" -u "${REGISTRY_OWNER}" --password-stdin; then
-                echo "Docker Login Successful."
-            else
-                echo "ERROR: Docker Login Failed. Deployment aborted."
-                exit 1 # 로그인 실패 시 즉시 종료
-            fi
+
             lsof -t -i :10420 | xargs -r kill -9
             
             echo "최신 이미지 Pull 및 Peer2 재실행..."
