@@ -113,7 +113,7 @@ jobs:
             
             docker-compose pull ${CONFIG_SERVICE}
             # Config Server는 Private Key가 필요하므로 환경변수를 전달합니다.
-            CONFIG_PRIVATE_KEY="${{secrets.CONFIG_PRIVATE_KEY}}" docker-compose up -d --no-deps --force-recreate ${CONFIG_SERVICE}
+            docker-compose up -d --no-deps --force-recreate ${CONFIG_SERVICE}
             
             docker logout ${{ env.REGISTRY }}
             
