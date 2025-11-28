@@ -14,7 +14,6 @@ env:
   IMAGE_NAME: eureka
   JAVA_VERSION: '21'
   DEPLOY_DIR: ~/msa-project
-  CONFIG_PRIVATE_KEY: ${{secrets.CONFIG_PRIVATE_KEY}}
 
 jobs:
   build-and-deploy:
