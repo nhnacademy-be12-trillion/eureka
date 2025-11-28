@@ -29,7 +29,6 @@ public class SecurityConfig {
                 authorizeRequests.requestMatchers("/eureka/**").permitAll()
                         .anyRequest().authenticated());
 
-
         http.httpBasic(Customizer.withDefaults());
 
         return http.build();

@@ -8,5 +8,6 @@ WORKDIR /app
 ARG JAR_FILE=target/*.jar
 COPY ${JAR_FILE} app.jar
 
+
 # 4. 실행 명령어
 ENTRYPOINT ["java", "-jar", "app.jar"]
