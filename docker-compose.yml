@@ -9,9 +9,7 @@ services:
     environment:
       - EUREKA_URL=http://be12-team1:nhnacademy123!@eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@eureka-peer2:10420/eureka/
       - SERVER_PORT=10418
-      - SPRING_CLOUD_CONFIG_SERVER_GIT_PRIVATEKEY=${SPRING_CLOUD_CONFIG_SERVER_GIT_PRIVATEKEY}
-      - SPRING_CLOUD_CONFIG_SERVER_GIT_URI=git@github.com:nhnacademy-be12-trillion/config-repo.git
-      - SPRING_CLOUD_CONFIG_SERVER_GIT_IGNORELOCALSSHSETTINGS=true
+      - GHCR_PAT=${GHCR_TOKEN}
     networks:
       - msa-network
 
