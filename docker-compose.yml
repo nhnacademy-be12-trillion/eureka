@@ -6,11 +6,10 @@ services:
     container_name: config-server
     ports:
       - "10418:10418"
-    volumes:
-      - /home/backend/be12-team1/.ssh/id_ed25519:/config/.ssh/id_ed25519:ro
     environment:
       - EUREKA_URL=http://be12-team1:nhnacademy123!@eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@eureka-peer2:10420/eureka/
       - SERVER_PORT=10418
+      - SPRING_CONFIG_PRIVATEKEY="-----BEGIN OPENSSH PRIVATE KEY-----\nb3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW\nQyNTUxOQAAACCeiYf0h2rOx9cMVvQxIEElmky7B0HPVdXkPc+QmNxPTAAAAJguB6mZLgep\nmQAAAAtzc2gtZWQyNTUxOQAAACCeiYf0h2rOx9cMVvQxIEElmky7B0HPVdXkPc+QmNxPTA\nAAAEDSQQg6O5j+24M7RlJxiMJdC8s7A7KinzAA5BgOH4jvY56Jh/SHas7H1wxW9DEgQSWa\nTLsHQc9V1eQ9z5CY3E9MAAAAE3NlcnJvdDI0QGdpdGh1Yi5jb20BAg==\n-----END OPENSSH PRIVATE KEY-----
     networks:
       - msa-network
   # 첫 번째 유레카 서버 (포트 10419)
