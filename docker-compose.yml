@@ -1,14 +1,13 @@
 version: '3.8'
 
 services:
-
   config-server:
     image: ghcr.io/nhnacademy-be12-trillion/config-server:latest
     container_name: config-server
     ports:
       - "10418:10418"
     volumes:
-      - /home/backend/be12-team1/.ssh//id_ed25519:/config/.ssh/id_ed25519:ro
+      - /home/backend/be12-team1/.ssh/id_ed25519:/config/.ssh/id_ed25519:ro
     environment:
       - EUREKA_URL=http://be12-team1:nhnacademy123!@eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@eureka-peer2:10420/eureka/
       - SERVER_PORT=10418
