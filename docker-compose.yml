@@ -13,7 +13,7 @@ services:
     networks:
       - msa-network
     volumes:
-      - /home/backend/be12-team1/.ssh/id_rsa:/etc/ssh/config_key:ro
+      - /home/backend/be12-team1/.ssh/id_rsa:/etc/ssh/config_key
     command: /bin/sh -c "chmod 600 /etc/ssh/config_key"
   # 첫 번째 유레카 서버 (포트 10419)
   eureka-peer1:
