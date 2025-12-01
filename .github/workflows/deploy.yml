@@ -84,9 +84,9 @@ jobs:
           password: ${{ secrets.SSH_PASSWORD }}
           port: ${{ secrets.SSH_PORT }}
           script: |
-            SERVICE_NAME1="eureka-peer1"
-            SERVICE_NAME2="eureka-peer2"
-            CONFIG_SERVICE="config-server"
+            SERVICE_NAME1="trillion-eureka-peer1"
+            SERVICE_NAME2="trillion-eureka-peer2"
+            CONFIG_SERVICE="trillion-config-server"
             
             
             echo "SSH 접속 및 배포 디렉토리 이동..."

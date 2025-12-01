@@ -3,7 +3,7 @@ version: '3.8'
 services:
   config-server:
     image: ghcr.io/nhnacademy-be12-trillion/config-server:latest
-    container_name: config-server
+    container_name: trillion-config-server
     ports:
       - "10418:10418"
     environment:
@@ -15,9 +15,9 @@ services:
   # 첫 번째 유레카 서버 (포트 10419)
   eureka-peer1:
     image: ghcr.io/nhnacademy-be12-trillion/eureka:latest
-    container_name: eureka-peer1
+    container_name: trillion-eureka-peer1
     ports:
-      - "10419:10419" # 호스트포트:컨테이너포트
+      - "10419:10419"
     environment:
       - SERVER_PORT=10419
       # 중요: 도커 내부에서는 localhost가 아닌 '서비스 이름(eureka-peer2)'으로 통신해야 합니다.
@@ -28,7 +28,7 @@ services:
   # 두 번째 유레카 서버 (포트 10420)
   eureka-peer2:
     image: ghcr.io/nhnacademy-be12-trillion/eureka:latest
-    container_name: eureka-peer2
+    container_name: trillion-eureka-peer2
     ports:
       - "10420:10420"
     environment:
@@ -40,7 +40,7 @@ services:
 
   gateway-peer1:
     image: ghcr.io/nhnacademy-be12-trillion/gateway:latest
-    container_name: gateway-peer1
+    container_name: trillion-gateway-peer1
     ports:
       - "10400:10400"
     environment:
@@ -52,7 +52,7 @@ services:
 
   gateway-peer2:
     image: ghcr.io/nhnacademy-be12-trillion/gateway:latest
-    container_name: gateway-peer2
+    container_name: trillion-gateway-peer2
     ports:
       - "10401:10401"
     environment:
@@ -64,7 +64,7 @@ services:
 
   member-peer1:
     image: ghcr.io/nhnacademy-be12-trillion/member-service:latest
-    container_name: member-peer1
+    container_name: trillion-member-peer1
     ports:
       - "10403:10403"
     environment:
@@ -76,7 +76,7 @@ services:
 
   member-peer2:
     image: ghcr.io/nhnacademy-be12-trillion/member-service:latest
-    container_name: member-peer2
+    container_name: trillion-member-peer2
     ports:
       - "10404:10404"
     environment:
@@ -88,7 +88,7 @@ services:
 
   book-peer1:
     image: ghcr.io/nhnacademy-be12-trillion/book-service:latest
-    container_name: book-peer1
+    container_name: trillion-book-peer1
     ports:
       - "10405:10405"
     environment:
@@ -100,7 +100,7 @@ services:
 
   book-peer2:
     image: ghcr.io/nhnacademy-be12-trillion/book-service:latest
-    container_name: book-peer2
+    container_name: trillion-book-peer2
     ports:
       - "10406:10406"
     environment:
@@ -112,7 +112,7 @@ services:
 
   order-peer1:
     image: ghcr.io/nhnacademy-be12-trillion/order-service:latest
-    container_name: order-peer1
+    container_name: trillion-order-peer1
     ports:
       - "10407:10407"
     environment:
@@ -124,7 +124,7 @@ services:
 
   order-peer2:
     image: ghcr.io/nhnacademy-be12-trillion/order-service:latest
-    container_name: order-peer2
+    container_name: trillion-order-peer2
     ports:
       - "10408:10408"
     environment:
@@ -136,7 +136,7 @@ services:
 
   coupon-service:
     image: ghcr.io/nhnacademy-be12-trillion/coupon-service:latest
-    container_name: coupon-peer
+    container_name: trillion-coupon-peer
     ports:
       - "10409:10409"
     environment:
@@ -148,7 +148,7 @@ services:
 
   search-peer1:
     image: ghcr.io/nhnacademy-be12-trillion/coupon-service:latest
-    container_name: search-peer1
+    container_name: trillion-search-peer1
     ports:
       - "10410:10410"
     environment:
@@ -160,7 +160,7 @@ services:
 
   search-peer2:
     image: ghcr.io/nhnacademy-be12-trillion/coupon-service:latest
-    container_name: search-peer2
+    container_name: trillion-search-peer2
     ports:
       - "10411:10411"
     environment:
