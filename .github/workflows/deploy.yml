@@ -52,8 +52,7 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.REGISTRY_OWNER }}/${{ env.IMAGE_NAME }}
           tags: |
-            type=sha,prefix=,suffix=,format=short
-            type=raw,value=latest,enable=true
+            type=raw,value=latest # latest 태그 고정
 
       - name: 🔨 Build and Push Docker image
         uses: docker/build-push-action@v5
@@ -91,21 +90,17 @@ jobs:
             
             echo "SSH 접속 및 배포 디렉토리 이동..."
             mkdir -p ${{ env.DEPLOY_DIR }}
-            cd ${{ env.DEPLOY_DIR }}
-            
-            lsof -t -i :10419 | xargs -r kill -9
+            cd ${{ env.DEPLOY_DIR }}          
   
             echo "기존 컨테이너 정리..."
             docker-compose down
             
             echo "Docker Registry 로그인..."
-            echo ${{secrets.GHCR_TOKEN}} | docker login ${{ env.REGISTRY }} -u ${{ env.REGISTRY_OWNER }} --password-stdin
+            echo ${{ secrets.GHCR_TOKEN }} | docker login ${{ env.REGISTRY }} -u ${{ env.REGISTRY_OWNER }} --password-stdin
             
             echo "최신 이미지 Pull 및 Peer1 재실행..."
             docker-compose pull ${SERVICE_NAME1}
             docker-compose up -d --no-deps --force-recreate ${SERVICE_NAME1}
-
-            lsof -t -i :10420 | xargs -r kill -9
             
             echo "최신 이미지 Pull 및 Peer2 재실행..."
             docker-compose pull ${SERVICE_NAME2}
