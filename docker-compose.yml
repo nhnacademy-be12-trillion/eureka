@@ -1,18 +1,22 @@
 version: '3.8'
 
 services:
+  # ----------------------------------------
+  # 핵심 인프라 서비스 (Discovery & Config)
+  # ----------------------------------------
   config-server:
     image: ghcr.io/nhnacademy-be12-trillion/config-server:latest
     container_name: trillion-config-server
     ports:
       - "10418:10418"
     environment:
-      - EUREKA_URL=http://be12-team1:nhnacademy123!@eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@eureka-peer2:10420/eureka/
       - SERVER_PORT=10418
       - CONFIG_PRIVATE_KEY=${CONFIG_PRIVATE_KEY}
+      - EUREKA_URL=http://be12-team1:nhnacademy123!@trillion-eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@trillion-eureka-peer2:10420/eureka/
     networks:
       - msa-network
-  # 첫 번째 유레카 서버 (포트 10419)
+
+  # 1. 첫 번째 유레카 서버 (Active Peer)
   eureka-peer1:
     image: ghcr.io/nhnacademy-be12-trillion/eureka:latest
     container_name: trillion-eureka-peer1
@@ -20,12 +24,11 @@ services:
       - "10419:10419"
     environment:
       - SERVER_PORT=10419
-      # 중요: 도커 내부에서는 localhost가 아닌 '서비스 이름(eureka-peer2)'으로 통신해야 합니다.
-      - EUREKA_PEER_URL=http://be12-team1:nhnacademy123!@eureka-peer2:10420/eureka/
+      - EUREKA_PEER_URL=http://be12-team1:nhnacademy123!@trillion-eureka-peer2:10420/eureka/
     networks:
       - msa-network
 
-  # 두 번째 유레카 서버 (포트 10420)
+  # 2. 두 번째 유레카 서버 (Backup Peer)
   eureka-peer2:
     image: ghcr.io/nhnacademy-be12-trillion/eureka:latest
     container_name: trillion-eureka-peer2
@@ -33,11 +36,13 @@ services:
       - "10420:10420"
     environment:
       - SERVER_PORT=10420
-      # 중요: Peer1을 바라보도록 설정
-      - EUREKA_PEER_URL=http://be12-team1:nhnacademy123!@eureka-peer1:10419/eureka/
+      - EUREKA_PEER_URL=http://be12-team1:nhnacademy123!@trillion-eureka-peer1:10419/eureka/
     networks:
       - msa-network
 
+  # ----------------------------------------
+  # API 게이트웨이 서비스 (Load Balancer & Routing)
+  # ----------------------------------------
   gateway-peer1:
     image: ghcr.io/nhnacademy-be12-trillion/gateway:latest
     container_name: trillion-gateway-peer1
@@ -45,8 +50,8 @@ services:
       - "10400:10400"
     environment:
       - SERVER_PORT=10400
-      - EUREKA_URL=http://be12-team1:nhnacademy123!@eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@eureka-peer2:10420/eureka/
       - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@config-server:10418/
+      - EUREKA_URL=http://be12-team1:nhnacademy123!@trillion-eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@trillion-eureka-peer2:10420/eureka/
     networks:
       - msa-network
 
@@ -57,11 +62,15 @@ services:
       - "10401:10401"
     environment:
       - SERVER_PORT=10401
-      - EUREKA_URL=http://be12-team1:nhnacademy123!@eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@eureka-peer2:10420/eureka/
       - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@config-server:10418/
+      - EUREKA_URL=http://be12-team1:nhnacademy123!@trillion-eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@trillion-eureka-peer2:10420/eureka/
     networks:
       - msa-network
 
+  # ----------------------------------------
+  # 마이크로서비스 (Member, Book, Order, Coupon, Search)
+  # ----------------------------------------
+  # 1. 회원 서비스 (Member Service)
   member-peer1:
     image: ghcr.io/nhnacademy-be12-trillion/member-service:latest
     container_name: trillion-member-peer1
@@ -69,8 +78,8 @@ services:
       - "10403:10403"
     environment:
       - SERVER_PORT=10403
-      - EUREKA_URL=http://be12-team1:nhnacademy123!@eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@eureka-peer2:10420/eureka/
       - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@config-server:10418/
+      - EUREKA_URL=http://be12-team1:nhnacademy123!@trillion-eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@trillion-eureka-peer2:10420/eureka/
     networks:
       - msa-network
 
@@ -81,11 +90,12 @@ services:
       - "10404:10404"
     environment:
       - SERVER_PORT=10404
-      - EUREKA_URL=http://be12-team1:nhnacademy123!@eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@eureka-peer2:10420/eureka/
       - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@config-server:10418/
+      - EUREKA_URL=http://be12-team1:nhnacademy123!@trillion-eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@trillion-eureka-peer2:10420/eureka/
     networks:
       - msa-network
 
+  # 2. 도서 서비스 (Book Service)
   book-peer1:
     image: ghcr.io/nhnacademy-be12-trillion/book-service:latest
     container_name: trillion-book-peer1
@@ -93,8 +103,8 @@ services:
       - "10405:10405"
     environment:
       - SERVER_PORT=10405
-      - EUREKA_URL=http://be12-team1:nhnacademy123!@eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@eureka-peer2:10420/eureka/
       - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@config-server:10418/
+      - EUREKA_URL=http://be12-team1:nhnacademy123!@trillion-eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@trillion-eureka-peer2:10420/eureka/
     networks:
       - msa-network
 
@@ -105,11 +115,12 @@ services:
       - "10406:10406"
     environment:
       - SERVER_PORT=10406
-      - EUREKA_URL=http://be12-team1:nhnacademy123!@eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@eureka-peer2:10420/eureka/
       - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@config-server:10418/
+      - EUREKA_URL=http://be12-team1:nhnacademy123!@trillion-eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@trillion-eureka-peer2:10420/eureka/
     networks:
       - msa-network
 
+  # 3. 주문 서비스 (Order Service)
   order-peer1:
     image: ghcr.io/nhnacademy-be12-trillion/order-service:latest
     container_name: trillion-order-peer1
@@ -117,8 +128,8 @@ services:
       - "10407:10407"
     environment:
       - SERVER_PORT=10407
-      - EUREKA_URL=http://be12-team1:nhnacademy123!@eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@eureka-peer2:10420/eureka/
       - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@config-server:10418/
+      - EUREKA_URL=http://be12-team1:nhnacademy123!@trillion-eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@trillion-eureka-peer2:10420/eureka/
     networks:
       - msa-network
 
@@ -129,11 +140,12 @@ services:
       - "10408:10408"
     environment:
       - SERVER_PORT=10408
-      - EUREKA_URL=http://be12-team1:nhnacademy123!@eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@eureka-peer2:10420/eureka/
       - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@config-server:10418/
+      - EUREKA_URL=http://be12-team1:nhnacademy123!@trillion-eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@trillion-eureka-peer2:10420/eureka/
     networks:
       - msa-network
 
+  # 4. 쿠폰 서비스 (Coupon Service - 단일 인스턴스)
   coupon-service:
     image: ghcr.io/nhnacademy-be12-trillion/coupon-service:latest
     container_name: trillion-coupon-peer
@@ -141,35 +153,41 @@ services:
       - "10409:10409"
     environment:
       - SERVER_PORT=10409
-      - EUREKA_URL=http://be12-team1:nhnacademy123!@eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@eureka-peer2:10420/eureka/
       - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@config-server:10418/
+      - EUREKA_URL=http://be12-team1:nhnacademy123!@trillion-eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@trillion-eureka-peer2:10420/eureka/
     networks:
       - msa-network
 
+  # 5. 검색 서비스 (Search Service)
   search-peer1:
+    # *주의: 이미지 이름이 coupon-service로 되어 있는데, search-service가 맞는지 확인 필요합니다.*
     image: ghcr.io/nhnacademy-be12-trillion/coupon-service:latest
     container_name: trillion-search-peer1
     ports:
       - "10410:10410"
     environment:
       - SERVER_PORT=10410
-      - EUREKA_URL=http://be12-team1:nhnacademy123!@eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@eureka-peer2:10420/eureka/
       - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@config-server:10418/
+      - EUREKA_URL=http://be12-team1:nhnacademy123!@trillion-eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@trillion-eureka-peer2:10420/eureka/
     networks:
       - msa-network
 
   search-peer2:
+    # *주의: 이미지 이름이 coupon-service로 되어 있는데, search-service가 맞는지 확인 필요합니다.*
     image: ghcr.io/nhnacademy-be12-trillion/coupon-service:latest
     container_name: trillion-search-peer2
     ports:
       - "10411:10411"
     environment:
       - SERVER_PORT=10411
-      - EUREKA_URL=http://be12-team1:nhnacademy123!@eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@eureka-peer2:10420/eureka/
       - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@config-server:10418/
+      - EUREKA_URL=http://be12-team1:nhnacademy123!@trillion-eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@trillion-eureka-peer2:10420/eureka/
     networks:
       - msa-network
 
+  # ----------------------------------------
+  # 프론트엔드 서비스
+  # ----------------------------------------
   front-server:
     image: ghcr.io/nhnacademy-be12-trillion/front-server:latest
     container_name: front
@@ -179,7 +197,7 @@ services:
       - msa-network
 
 
-# 모든 컨테이너가 공유할 네트워크 생성
+# 모든 컨테이너가 공유할 네트워크 정의
 networks:
   msa-network:
     driver: bridge
