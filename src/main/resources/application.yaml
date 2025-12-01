@@ -21,8 +21,6 @@ eureka:
 
   instance:
     prefer-ip-address: true
-    # 호스트네임은 도커 내부의 호스트네임을 사용
-    hostname: ${HOSTNAME}
     instance-id: ${spring.application.name}:${server.port}
     registry:
       default-open-for-traffic-count: 0
