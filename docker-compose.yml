@@ -9,6 +9,8 @@ services:
     container_name: trillion-config-server
     ports:
       - "10418:10418"
+    env_file:
+      - ./.env
     environment:
       - SERVER_PORT=10418
       - CONFIG_PRIVATE_KEY=${CONFIG_PRIVATE_KEY}
@@ -22,6 +24,8 @@ services:
     container_name: trillion-eureka-peer1
     ports:
       - "10419:10419"
+    env_file:
+      - ./.env
     environment:
       - SERVER_PORT=10419
       - EUREKA_PEER_URL=http://be12-team1:nhnacademy123!@trillion-eureka-peer2:10420/eureka/
@@ -34,6 +38,8 @@ services:
     container_name: trillion-eureka-peer2
     ports:
       - "10420:10420"
+    env_file:
+      - ./.env
     environment:
       - SERVER_PORT=10420
       - EUREKA_PEER_URL=http://be12-team1:nhnacademy123!@trillion-eureka-peer1:10419/eureka/
@@ -48,10 +54,13 @@ services:
     container_name: trillion-gateway-peer1
     ports:
       - "10400:10400"
+    env_file:
+      - ./.env
     environment:
       - SERVER_PORT=10400
       - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@config-server:10418/
       - EUREKA_URL=http://be12-team1:nhnacademy123!@trillion-eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@trillion-eureka-peer2:10420/eureka/
+      - JWT_SECRET=${JWT_SECRET}
     networks:
       - msa-network
 
@@ -60,10 +69,13 @@ services:
     container_name: trillion-gateway-peer2
     ports:
       - "10401:10401"
+    env_file:
+      - ./.env
     environment:
       - SERVER_PORT=10401
       - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@config-server:10418/
       - EUREKA_URL=http://be12-team1:nhnacademy123!@trillion-eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@trillion-eureka-peer2:10420/eureka/
+      - JWT_SECRET=${JWT_SECRET}
     networks:
       - msa-network
 
@@ -76,10 +88,19 @@ services:
     container_name: trillion-member-peer1
     ports:
       - "10403:10403"
+    env_file:
+      - ./.env
     environment:
       - SERVER_PORT=10403
       - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@config-server:10418/
       - EUREKA_URL=http://be12-team1:nhnacademy123!@trillion-eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@trillion-eureka-peer2:10420/eureka/
+      - DB_PASSWORD=${DB_PASSWORD}
+      - PAYCO_CLIENT_ID=${PAYCO_CLIENT_ID}
+      - PAYCO_CLIENT_SECRET=${PAYCO_CLIENT_SECRET}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+      - SMTP_PASSWORD=${SMTP_PASSWORD}
+      - JWT_SECRET=${JWT_SECRET}
     networks:
       - msa-network
 
@@ -88,10 +109,19 @@ services:
     container_name: trillion-member-peer2
     ports:
       - "10404:10404"
+    env_file:
+      - ./.env
     environment:
       - SERVER_PORT=10404
       - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@config-server:10418/
       - EUREKA_URL=http://be12-team1:nhnacademy123!@trillion-eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@trillion-eureka-peer2:10420/eureka/
+      - DB_PASSWORD=${DB_PASSWORD}
+      - PAYCO_CLIENT_ID=${PAYCO_CLIENT_ID}
+      - PAYCO_CLIENT_SECRET=${PAYCO_CLIENT_SECRET}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+      - SMTP_PASSWORD=${SMTP_PASSWORD}
+      - JWT_SECRET=${JWT_SECRET}
     networks:
       - msa-network
 
@@ -101,10 +131,15 @@ services:
     container_name: trillion-book-peer1
     ports:
       - "10405:10405"
+    env_file:
+      - ./.env
     environment:
       - SERVER_PORT=10405
       - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@config-server:10418/
       - EUREKA_URL=http://be12-team1:nhnacademy123!@trillion-eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@trillion-eureka-peer2:10420/eureka/
+      - DB_PASSWORD=${DB_PASSWORD}
+      - ALADIN_TTBKEY=${ALADIN_TTBKEY}
+      - GEMINI_KEY=${GEMINI_KEY}
     networks:
       - msa-network
 
@@ -113,10 +148,15 @@ services:
     container_name: trillion-book-peer2
     ports:
       - "10406:10406"
+    env_file:
+      - ./.env
     environment:
       - SERVER_PORT=10406
       - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@config-server:10418/
       - EUREKA_URL=http://be12-team1:nhnacademy123!@trillion-eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@trillion-eureka-peer2:10420/eureka/
+      - DB_PASSWORD=${DB_PASSWORD}
+      - ALADIN_TTBKEY=${ALADIN_TTBKEY}
+      - GEMINI_KEY=${GEMINI_KEY}
     networks:
       - msa-network
 
@@ -126,10 +166,14 @@ services:
     container_name: trillion-order-peer1
     ports:
       - "10407:10407"
+    env_file:
+      - ./.env
     environment:
       - SERVER_PORT=10407
       - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@config-server:10418/
       - EUREKA_URL=http://be12-team1:nhnacademy123!@trillion-eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@trillion-eureka-peer2:10420/eureka/
+      - DB_PASSWORD=${DB_PASSWORD}
+      - TOSS_KEY=${TOSS_KEY}
     networks:
       - msa-network
 
@@ -138,10 +182,14 @@ services:
     container_name: trillion-order-peer2
     ports:
       - "10408:10408"
+    env_file:
+      - ./.env
     environment:
       - SERVER_PORT=10408
       - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@config-server:10418/
       - EUREKA_URL=http://be12-team1:nhnacademy123!@trillion-eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@trillion-eureka-peer2:10420/eureka/
+      - DB_PASSWORD=${DB_PASSWORD}
+      - TOSS_KEY=${TOSS_KEY}
     networks:
       - msa-network
 
@@ -151,37 +199,46 @@ services:
     container_name: trillion-coupon-peer
     ports:
       - "10409:10409"
+    env_file:
+      - ./.env
     environment:
       - SERVER_PORT=10409
       - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@config-server:10418/
       - EUREKA_URL=http://be12-team1:nhnacademy123!@trillion-eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@trillion-eureka-peer2:10420/eureka/
+      - DB_PASSWORD=${DB_PASSWORD}
     networks:
       - msa-network
 
   # 5. 검색 서비스 (Search Service)
   search-peer1:
     # *주의: 이미지 이름이 coupon-service로 되어 있는데, search-service가 맞는지 확인 필요합니다.*
-    image: ghcr.io/nhnacademy-be12-trillion/coupon-service:latest
+    image: ghcr.io/nhnacademy-be12-trillion/search-service:latest
     container_name: trillion-search-peer1
     ports:
       - "10410:10410"
+    env_file:
+      - ./.env
     environment:
       - SERVER_PORT=10410
       - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@config-server:10418/
       - EUREKA_URL=http://be12-team1:nhnacademy123!@trillion-eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@trillion-eureka-peer2:10420/eureka/
+      - DB_PASSWORD=${DB_PASSWORD}
     networks:
       - msa-network
 
   search-peer2:
     # *주의: 이미지 이름이 coupon-service로 되어 있는데, search-service가 맞는지 확인 필요합니다.*
-    image: ghcr.io/nhnacademy-be12-trillion/coupon-service:latest
+    image: ghcr.io/nhnacademy-be12-trillion/search-service:latest
     container_name: trillion-search-peer2
     ports:
       - "10411:10411"
+    env_file:
+      - ./.env
     environment:
       - SERVER_PORT=10411
       - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@config-server:10418/
       - EUREKA_URL=http://be12-team1:nhnacademy123!@trillion-eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@trillion-eureka-peer2:10420/eureka/
+      - DB_PASSWORD=${DB_PASSWORD}
     networks:
       - msa-network
 
