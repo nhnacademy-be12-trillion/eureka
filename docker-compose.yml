@@ -1,93 +1,86 @@
+version: "3.8"
+
+# 공통 옵션용 anchor 정의
+x-common-service: &common-service
+  env_file:
+    - ./.env
+  networks:
+    - msa-network
+
 services:
   # ----------------------------------------
   # 핵심 인프라 서비스 (Discovery & Config)
   # ----------------------------------------
   config-server:
+    <<: *common-service
     image: ghcr.io/nhnacademy-be12-trillion/config-server:latest
     container_name: trillion-config-server
     ports:
       - "10418:10418"
-    env_file:
-      - ./.env
     environment:
       - SERVER_PORT=10418
       - CONFIG_PRIVATE_KEY=${CONFIG_PRIVATE_KEY}
       - EUREKA_URL=http://be12-team1:nhnacademy123!@trillion-eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@trillion-eureka-peer2:10420/eureka/
-    networks:
-      - msa-network
 
   # 1. 첫 번째 유레카 서버 (Active Peer)
   eureka-peer1:
+    <<: *common-service
     image: ghcr.io/nhnacademy-be12-trillion/eureka:latest
     container_name: trillion-eureka-peer1
     ports:
       - "10419:10419"
-    env_file:
-      - ./.env
     environment:
       - SERVER_PORT=10419
       - EUREKA_PEER_URL=http://be12-team1:nhnacademy123!@trillion-eureka-peer2:10420/eureka/
-    networks:
-      - msa-network
 
   # 2. 두 번째 유레카 서버 (Backup Peer)
   eureka-peer2:
+    <<: *common-service
     image: ghcr.io/nhnacademy-be12-trillion/eureka:latest
     container_name: trillion-eureka-peer2
     ports:
       - "10420:10420"
-    env_file:
-      - ./.env
     environment:
       - SERVER_PORT=10420
       - EUREKA_PEER_URL=http://be12-team1:nhnacademy123!@trillion-eureka-peer1:10419/eureka/
-    networks:
-      - msa-network
 
   # ----------------------------------------
   # API 게이트웨이 서비스 (Load Balancer & Routing)
   # ----------------------------------------
   gateway-peer1:
+    <<: *common-service
     image: ghcr.io/nhnacademy-be12-trillion/gateway:latest
     container_name: trillion-gateway-peer1
     ports:
       - "10400:10400"
-    env_file:
-      - ./.env
     environment:
       - SERVER_PORT=10400
       - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@config-server:10418/
       - EUREKA_URL=http://be12-team1:nhnacademy123!@trillion-eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@trillion-eureka-peer2:10420/eureka/
       - JWT_SECRET=${JWT_SECRET}
-    networks:
-      - msa-network
 
   gateway-peer2:
+    <<: *common-service
     image: ghcr.io/nhnacademy-be12-trillion/gateway:latest
     container_name: trillion-gateway-peer2
     ports:
       - "10401:10401"
-    env_file:
-      - ./.env
     environment:
       - SERVER_PORT=10401
       - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@config-server:10418/
       - EUREKA_URL=http://be12-team1:nhnacademy123!@trillion-eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@trillion-eureka-peer2:10420/eureka/
       - JWT_SECRET=${JWT_SECRET}
-    networks:
-      - msa-network
 
   # ----------------------------------------
   # 마이크로서비스 (Member, Book, Order, Coupon, Search)
   # ----------------------------------------
   # 1. 회원 서비스 (Member Service)
   member-peer1:
+    <<: *common-service
     image: ghcr.io/nhnacademy-be12-trillion/member-service:latest
     container_name: trillion-member-peer1
     ports:
       - "10403:10403"
-    env_file:
-      - ./.env
     environment:
       - SERVER_PORT=10403
       - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@config-server:10418/
@@ -99,16 +92,13 @@ services:
       - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
       - SMTP_PASSWORD=${SMTP_PASSWORD}
       - JWT_SECRET=${JWT_SECRET}
-    networks:
-      - msa-network
 
   member-peer2:
+    <<: *common-service
     image: ghcr.io/nhnacademy-be12-trillion/member-service:latest
     container_name: trillion-member-peer2
     ports:
       - "10404:10404"
-    env_file:
-      - ./.env
     environment:
       - SERVER_PORT=10404
       - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@config-server:10418/
@@ -120,17 +110,14 @@ services:
       - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
       - SMTP_PASSWORD=${SMTP_PASSWORD}
       - JWT_SECRET=${JWT_SECRET}
-    networks:
-      - msa-network
 
   # 2. 도서 서비스 (Book Service)
   book-peer1:
+    <<: *common-service
     image: ghcr.io/nhnacademy-be12-trillion/book-service:latest
     container_name: trillion-book-peer1
     ports:
       - "10405:10405"
-    env_file:
-      - ./.env
     environment:
       - SERVER_PORT=10405
       - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@config-server:10418/
@@ -138,16 +125,13 @@ services:
       - DB_PASSWORD=${DB_PASSWORD}
       - ALADIN_TTBKEY=${ALADIN_TTBKEY}
       - GEMINI_KEY=${GEMINI_KEY}
-    networks:
-      - msa-network
 
   book-peer2:
+    <<: *common-service
     image: ghcr.io/nhnacademy-be12-trillion/book-service:latest
     container_name: trillion-book-peer2
     ports:
       - "10406:10406"
-    env_file:
-      - ./.env
     environment:
       - SERVER_PORT=10406
       - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@config-server:10418/
@@ -155,102 +139,100 @@ services:
       - DB_PASSWORD=${DB_PASSWORD}
       - ALADIN_TTBKEY=${ALADIN_TTBKEY}
       - GEMINI_KEY=${GEMINI_KEY}
-    networks:
-      - msa-network
 
   # 3. 주문 서비스 (Order Service)
   order-peer1:
+    <<: *common-service
     image: ghcr.io/nhnacademy-be12-trillion/order-service:latest
     container_name: trillion-order-peer1
     ports:
       - "10407:10407"
-    env_file:
-      - ./.env
     environment:
       - SERVER_PORT=10407
       - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@config-server:10418/
       - EUREKA_URL=http://be12-team1:nhnacademy123!@trillion-eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@trillion-eureka-peer2:10420/eureka/
       - DB_PASSWORD=${DB_PASSWORD}
       - TOSS_KEY=${TOSS_KEY}
-    networks:
-      - msa-network
 
   order-peer2:
+    <<: *common-service
     image: ghcr.io/nhnacademy-be12-trillion/order-service:latest
     container_name: trillion-order-peer2
     ports:
       - "10408:10408"
-    env_file:
-      - ./.env
     environment:
       - SERVER_PORT=10408
       - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@config-server:10418/
       - EUREKA_URL=http://be12-team1:nhnacademy123!@trillion-eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@trillion-eureka-peer2:10420/eureka/
       - DB_PASSWORD=${DB_PASSWORD}
       - TOSS_KEY=${TOSS_KEY}
-    networks:
-      - msa-network
 
   # 4. 쿠폰 서비스 (Coupon Service - 단일 인스턴스)
   coupon-service:
+    <<: *common-service
     image: ghcr.io/nhnacademy-be12-trillion/coupon-service:latest
     container_name: trillion-coupon-peer
     ports:
       - "10409:10409"
-    env_file:
-      - ./.env
     environment:
       - SERVER_PORT=10409
       - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@config-server:10418/
       - EUREKA_URL=http://be12-team1:nhnacademy123!@trillion-eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@trillion-eureka-peer2:10420/eureka/
       - DB_PASSWORD=${DB_PASSWORD}
-    networks:
-      - msa-network
 
   # 5. 검색 서비스 (Search Service)
   search-peer1:
-    # *주의: 이미지 이름이 coupon-service로 되어 있는데, search-service가 맞는지 확인 필요합니다.*
+    <<: *common-service
     image: ghcr.io/nhnacademy-be12-trillion/search-service:latest
     container_name: trillion-search-peer1
     ports:
       - "10410:10410"
-    env_file:
-      - ./.env
     environment:
       - SERVER_PORT=10410
       - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@config-server:10418/
       - EUREKA_URL=http://be12-team1:nhnacademy123!@trillion-eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@trillion-eureka-peer2:10420/eureka/
       - DB_PASSWORD=${DB_PASSWORD}
-    networks:
-      - msa-network
 
   search-peer2:
-    # *주의: 이미지 이름이 coupon-service로 되어 있는데, search-service가 맞는지 확인 필요합니다.*
+    <<: *common-service
     image: ghcr.io/nhnacademy-be12-trillion/search-service:latest
     container_name: trillion-search-peer2
     ports:
       - "10411:10411"
-    env_file:
-      - ./.env
     environment:
       - SERVER_PORT=10411
       - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@config-server:10418/
       - EUREKA_URL=http://be12-team1:nhnacademy123!@trillion-eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@trillion-eureka-peer2:10420/eureka/
       - DB_PASSWORD=${DB_PASSWORD}
-    networks:
-      - msa-network
 
   # ----------------------------------------
-  # 프론트엔드 서비스
+  # 프론트엔드 서비스 (Spring Boot / Thymeleaf or Nginx static)
   # ----------------------------------------
   front-server:
-    image: ghcr.io/nhnacademy-be12-trillion/front-server:latest
-    container_name: front
+    <<: *common-service
+    image: ghcr.io/nhnacademy-be12-trillion/front:latest
+    container_name: trillion-front-peer
     ports:
-      - "10402:80"
+      - "10402:80"   # 필요 없으면 외부 포트는 제거해도 됨
+    environment:
+      - SERVER_PORT=10402
+
+  # ----------------------------------------
+  # 엣지 Nginx (Public Entry Point)
+  # ----------------------------------------
+  nginx:
+    image: nginx:1.29.3-alpine-slim
+    container_name: trillion-nginx
+    depends_on:
+      - gateway-peer1
+      - gateway-peer2
+      - front-server
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/app.conf:/etc/nginx/conf.d/default.conf:ro
     networks:
       - msa-network
-
 
 # 모든 컨테이너가 공유할 네트워크 정의
 networks:
