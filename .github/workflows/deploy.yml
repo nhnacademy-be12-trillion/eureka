@@ -104,6 +104,14 @@ jobs:
             echo "ALADIN_TTBKEY=\"${{ secrets.ALADIN_TTBKEY }}\"" >> .env
             echo "GEMINI_KEY=\"${{ secrets.GEMINI_KEY }}\"" >> .env
             echo "TOSS_KEY=\"${{ secrets.TOSS_KEY }}\"" >> .env
+            echo "GEMINI_SEARCH_KEY=\"${{ secrets.GEMINI_SEARCH_KEY }}\"" >> .env
+            echo "ES_HOST=\"${{ secrets.ES_HOST }}\"" >> .env
+            echo "ES_PASSWORD=\"${{ secrets.ES_PASSWORD }}\"" >> .env
+            echo "OLLAMA_BASE_URL=\"${{ secrets.OLLAMA_BASE_URL }}\"" >> .env
+            echo "RERANKER_BASE_URL=\"${{ secrets.RERANKER_BASE_URL }}\"" >> .env
+            echo "MINIO_URL=\"${{ secrets.MINIO_URL }}\"" >> .env
+            echo "MINIO_ACCESS_KEY=\"${{ secrets.MINIO_ACCESS_KEY }}\"" >> .env
+            echo "MINIO_SECRET_KEY=\"${{ secrets.MINIO_SECRET_KEY }}\"" >> .env
             
             echo "환경 변수 파일 생성 완료!"
             

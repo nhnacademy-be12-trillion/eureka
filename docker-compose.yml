@@ -59,17 +59,17 @@ services:
       - EUREKA_URL=http://be12-team1:nhnacademy123!@trillion-eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@trillion-eureka-peer2:10420/eureka/
       - JWT_SECRET=${JWT_SECRET}
 
-  gateway-peer2:
-    <<: *common-service
-    image: ghcr.io/nhnacademy-be12-trillion/gateway:latest
-    container_name: trillion-gateway-peer2
-    ports:
-      - "10401:10401"
-    environment:
-      - SERVER_PORT=10401
-      - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@config-server:10418/
-      - EUREKA_URL=http://be12-team1:nhnacademy123!@trillion-eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@trillion-eureka-peer2:10420/eureka/
-      - JWT_SECRET=${JWT_SECRET}
+#  gateway-peer2:
+#    <<: *common-service
+#    image: ghcr.io/nhnacademy-be12-trillion/gateway:latest
+#    container_name: trillion-gateway-peer2
+#    ports:
+#      - "10401:10401"
+#    environment:
+#      - SERVER_PORT=10401
+#      - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@config-server:10418/
+#      - EUREKA_URL=http://be12-team1:nhnacademy123!@trillion-eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@trillion-eureka-peer2:10420/eureka/
+#      - JWT_SECRET=${JWT_SECRET}
 
   # ----------------------------------------
   # 마이크로서비스 (Member, Book, Order, Coupon, Search)
@@ -192,6 +192,12 @@ services:
       - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@config-server:10418/
       - EUREKA_URL=http://be12-team1:nhnacademy123!@trillion-eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@trillion-eureka-peer2:10420/eureka/
       - DB_PASSWORD=${DB_PASSWORD}
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - ES_HOST=${ES_HOST}
+      - ES_PASSWORD=${ES_PASSWORD}
+      - GEMINI_SEARCH_KEY=${GEMINI_SEARCH_KEY}
+      - OLLAMA_BASE_URL=${OLLAMA_BASE_URL}
+      - RERANKER_BASE_URL=${RERANKER_BASE_URL}
 
   search-peer2:
     <<: *common-service
@@ -204,16 +210,19 @@ services:
       - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@config-server:10418/
       - EUREKA_URL=http://be12-team1:nhnacademy123!@trillion-eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@trillion-eureka-peer2:10420/eureka/
       - DB_PASSWORD=${DB_PASSWORD}
+      - ES_HOST=${ES_HOST}
+      - ES_PASSWORD=${ES_PASSWORD}
+      - GEMINI_SEARCH_KEY=${GEMINI_SEARCH_KEY}
+      - OLLAMA_BASE_URL=${OLLAMA_BASE_URL}
+      - RERANKER_BASE_URL=${RERANKER_BASE_URL}
 
   # ----------------------------------------
   # 프론트엔드 서비스 (Spring Boot / Thymeleaf or Nginx static)
   # ----------------------------------------
   front-server:
     <<: *common-service
-    image: ghcr.io/nhnacademy-be12-trillion/front:latest
+    image: ghcr.io/nhnacademy-be12-trillion/front-server:latest
     container_name: trillion-front-peer
-    ports:
-      - "10402:80"   # 필요 없으면 외부 포트는 제거해도 됨
     environment:
       - SERVER_PORT=10402
 
@@ -225,14 +234,16 @@ services:
     container_name: trillion-nginx
     depends_on:
       - gateway-peer1
-      - gateway-peer2
       - front-server
     ports:
       - "80:80"
+      - "443:443"   # HTTPS 까지 컨테이너에서 처리할 경우
     volumes:
       - ./nginx/app.conf:/etc/nginx/conf.d/default.conf:ro
+      - /home/backend/be12-team1/nginx/logs:/var/log/nginx
     networks:
       - msa-network
+
 
 # 모든 컨테이너가 공유할 네트워크 정의
 networks:
