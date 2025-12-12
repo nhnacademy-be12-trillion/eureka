@@ -119,21 +119,40 @@ jobs:
             echo ${{ secrets.GHCR_TOKEN }} | docker login ${{ env.REGISTRY }} -u ${{ env.REGISTRY_OWNER }} --password-stdin
             
             echo "최신 Config Server 이미지 Pull 및 재시작..."
-            docker-compose rm -f ${CONFIG_SERVICE}
+            wait_health () {
+            URL=$1
+            echo "Waiting for health: $URL"
+            for i in $(seq 1 60); do
+            # health endpoint가 basic auth 필요하면 -u 사용
+            if curl -fsS -u ${{ secrets.EUREKA_AUTH }} "$URL" | grep -q '"status":"UP"'; then
+            echo "✅ UP: $URL"
+            return 0
+            fi
+            sleep 5
+            done
+            echo "❌ Health check timeout: $URL"
+            return 1
+            }
+            # Config Server 먼저
+            echo "Config Server update..."
+            docker compose rm -f ${CONFIG_SERVICE}
             docker compose pull ${CONFIG_SERVICE}
             docker compose up -d --no-deps ${CONFIG_SERVICE}
-            sleep 5
+            wait_health "http://127.0.0.1:10418/actuator/health" || exit 1
             
-            echo "최신 이미지 Pull 및 Peer1 재실행..."
-            docker-compose rm -f ${SERVICE_NAME1}
+            # Eureka peer1
+            echo "Eureka peer1 update..."
+            docker compose rm -f ${SERVICE_NAME1}
             docker compose pull ${SERVICE_NAME1}
             docker compose up -d --no-deps ${SERVICE_NAME1}
+            wait_health "http://127.0.0.1:10419/actuator/health" || exit 1
             
-            echo "최신 이미지 Pull 및 Peer2 재실행..."
-            docker-compose rm -f ${SERVICE_NAME2}
+            # Eureka peer2
+            echo "Eureka peer2 update..."
+            docker compose rm -f ${SERVICE_NAME2}
             docker compose pull ${SERVICE_NAME2}
             docker compose up -d --no-deps ${SERVICE_NAME2}
-            
+            wait_health "http://127.0.0.1:10420/actuator/health" || exit 1
             
             docker logout ${{ env.REGISTRY }}
             

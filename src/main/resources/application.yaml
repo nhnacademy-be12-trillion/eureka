@@ -24,3 +24,14 @@ eureka:
     instance-id: ${spring.application.name}:${server.port}
     registry:
       default-open-for-traffic-count: 0
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: never
