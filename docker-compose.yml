@@ -52,7 +52,7 @@ services:
     image: ghcr.io/nhnacademy-be12-trillion/gateway:latest
     container_name: trillion-gateway-peer1
     ports:
-      - "10400:10400"
+      - "127.0.0.1:10400:10400"
     environment:
       - SERVER_PORT=10400
       - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@config-server:10418/
@@ -223,29 +223,31 @@ services:
     <<: *common-service
     image: ghcr.io/nhnacademy-be12-trillion/front-server:latest
     container_name: trillion-front-peer
+    ports:
+      - "127.0.0.1:10402:10402"
     environment:
       - SERVER_PORT=10402
 
-  # ----------------------------------------
-  # 엣지 Nginx (Public Entry Point)
-  # ----------------------------------------
-
-
-  nginx:
-    image: nginx:1.29.3-alpine-slim
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./nginx/app.conf:/etc/nginx/conf.d/default.conf:ro
-      - ./nginx/certs:/etc/nginx/certs:ro
-      - /home/backend/be12-team1/nginx/logs:/var/log/nginx
-    container_name: trillion-nginx
-    depends_on:
-      - gateway-peer1
-      - front-server
-    networks:
-      - msa-network
+#  # ----------------------------------------
+#  # 엣지 Nginx (Public Entry Point)
+#  # ----------------------------------------
+#
+#
+#  nginx:
+#    image: nginx:1.29.3-alpine-slim
+#    ports:
+#      - "80:80"
+#      - "443:443"
+#    volumes:
+#      - ./nginx/app.conf:/etc/nginx/conf.d/default.conf:ro
+#      - ./nginx/certs:/etc/nginx/certs:ro
+#      - /home/backend/be12-team1/nginx/logs:/var/log/nginx
+#    container_name: trillion-nginx
+#    depends_on:
+#      - gateway-peer1
+#      - front-server
+#    networks:
+#      - msa-network
 
 
 # 모든 컨테이너가 공유할 네트워크 정의
