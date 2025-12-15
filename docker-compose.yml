@@ -3,9 +3,9 @@ version: "3.8"
 # 공통 옵션용 anchor 정의
 x-common-service: &common-service
   env_file:
-    - ./.env
+    - ./.env # 서비스마다 환경변수 파일 설정
   networks:
-    - msa-network
+    - msa-network # 컨테이너별 네트워크 설정
 x-health-default: &health-default
   interval: 10s
   timeout: 3s
@@ -17,17 +17,17 @@ services:
   # ----------------------------------------
   config-server:
     <<: *common-service
-    image: ghcr.io/nhnacademy-be12-trillion/config-server:latest
+    image: ghcr.io/nhnacademy-be12-trillion/config-server:latest #workflow에서 등록한 이미지 이름과 일치해야함
     container_name: trillion-config-server
     ports:
-      - "10418:10418"
-    environment:
+      - "10418:10418"  #외부포트:내부포트
+    environment:    #서버에서 필요한 환경 설정 변수 주입(Eureka Workflow에서 생성한 .env 파일 에서 찾아옴)
       - SERVER_PORT=10418
-      - CONFIG_PRIVATE_KEY=${CONFIG_PRIVATE_KEY}
-      - EUREKA_URL=http://be12-team1:nhnacademy123!@trillion-eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@trillion-eureka-peer2:10420/eureka/
+      - CONFIG_PRIVATE_KEY=${CONFIG_PRIVATE_KEY} #SSH 내부의 keygen 폴더 하위의 github_rsa 공개키, 비밀키 형식을 맞춰서 설정함(config-repo Depoloy키 설정된 상태)
+      - EUREKA_URL=http://be12-team1:nhnacademy123!@trillion-eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@trillion-eureka-peer2:10420/eureka/ #유레카 서버 주소 입력
     healthcheck:
       <<: *health-default
-      test: [ "CMD", "wget", "-qO-", "http://127.0.0.1:10418/actuator/health" ]
+      test: [ "CMD", "wget", "-qO-", "http://127.0.0.1:10418/actuator/health" ]  # docker compose ps 로 상태 조회 시 actuator 조회 시도
 
   # 1. 첫 번째 유레카 서버 (Active Peer)
   eureka-peer1:
@@ -65,7 +65,7 @@ services:
     image: ghcr.io/nhnacademy-be12-trillion/gateway:latest
     container_name: trillion-gateway-peer1
     ports:
-      - "127.0.0.1:10400:10400"
+      - "127.0.0.1:10400:10400" #nginx에서 요청받음, 공개포트(127.0.0.1)
     environment:
       - SERVER_PORT=10400
       - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@config-server:10418/
@@ -267,7 +267,7 @@ services:
     image: ghcr.io/nhnacademy-be12-trillion/front-server:latest
     container_name: trillion-front-peer
     ports:
-      - "127.0.0.1:10402:10402"
+      - "127.0.0.1:10402:10402" #nginx에 설정된 외부 포트를 사용
     environment:
       - SERVER_PORT=10402
 
