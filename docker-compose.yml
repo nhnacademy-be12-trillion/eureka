@@ -229,7 +229,7 @@ services:
       - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@config-server:10418/
       - EUREKA_URL=http://be12-team1:nhnacademy123!@trillion-eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@trillion-eureka-peer2:10420/eureka/
       - DB_PASSWORD=${DB_PASSWORD}
-      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - GEMINI_SEARCH_KEY=${GEMINI_SEARCH_KEY}
       - ES_HOST=${ES_HOST}
       - ES_PASSWORD=${ES_PASSWORD}
       - GEMINI_SEARCH_KEY=${GEMINI_SEARCH_KEY}
