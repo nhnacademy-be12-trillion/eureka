@@ -271,6 +271,24 @@ services:
     environment:
       - SERVER_PORT=10402
 
+  # ----------------------------------------
+  # 로그 수집기 Beats
+  # ----------------------------------------
+  filebeat:
+    image: docker.elastic.co/beats/filebeat:8.11.0
+    container_name: trillion-filebeat
+    user: root
+    networks:
+      - msa-network
+    volumes:
+      - ./filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    command: [ "filebeat", "-e", "--strict.perms=false" ]
+    restart: unless-stopped
+
+
+
 # 모든 컨테이너가 공유할 네트워크 정의
 networks:
   msa-network:
