@@ -19,8 +19,8 @@ services:
     <<: *common-service
     image: ghcr.io/nhnacademy-be12-trillion/config-server:latest #workflow에서 등록한 이미지 이름과 일치해야함
     container_name: trillion-config-server
-    ports:
-      - "10418:10418"  #외부포트:내부포트
+    expose:
+      - 10418
     environment:    #서버에서 필요한 환경 설정 변수 주입(Eureka Workflow에서 생성한 .env 파일 에서 찾아옴)
       - SERVER_PORT=10418
       - CONFIG_PRIVATE_KEY=${CONFIG_PRIVATE_KEY} #SSH 내부의 keygen 폴더 하위의 github_rsa 공개키, 비밀키 형식을 맞춰서 설정함(config-repo Depoloy키 설정된 상태)
@@ -34,8 +34,8 @@ services:
     <<: *common-service
     image: ghcr.io/nhnacademy-be12-trillion/eureka:latest
     container_name: trillion-eureka-peer1
-    ports:
-      - "10419:10419"
+    expose:
+      - 10419
     environment:
       - SERVER_PORT=10419
       - EUREKA_PEER_URL=http://be12-team1:nhnacademy123!@trillion-eureka-peer2:10420/eureka/
@@ -48,8 +48,8 @@ services:
     <<: *common-service
     image: ghcr.io/nhnacademy-be12-trillion/eureka:latest
     container_name: trillion-eureka-peer2
-    ports:
-      - "10420:10420"
+    expose:
+      - 10420
     environment:
       - SERVER_PORT=10420
       - EUREKA_PEER_URL=http://be12-team1:nhnacademy123!@trillion-eureka-peer1:10419/eureka/
@@ -65,7 +65,7 @@ services:
     image: ghcr.io/nhnacademy-be12-trillion/gateway:latest
     container_name: trillion-gateway-peer1
     ports:
-      - "127.0.0.1:10400:10400" #nginx에서 요청받음, 공개포트(127.0.0.1)
+      - "127.0.0.1:10400:10400"
     environment:
       - SERVER_PORT=10400
       - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@config-server:10418/
@@ -95,8 +95,8 @@ services:
     <<: *common-service
     image: ghcr.io/nhnacademy-be12-trillion/member-service:latest
     container_name: trillion-member-peer1
-    ports:
-      - "10403:10403"
+    expose:
+      - 10403
     environment:
       - SERVER_PORT=10403
       - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@config-server:10418/
@@ -116,8 +116,8 @@ services:
     <<: *common-service
     image: ghcr.io/nhnacademy-be12-trillion/member-service:latest
     container_name: trillion-member-peer2
-    ports:
-      - "10404:10404"
+    expose:
+      - 10404
     environment:
       - SERVER_PORT=10404
       - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@config-server:10418/
@@ -138,8 +138,8 @@ services:
     <<: *common-service
     image: ghcr.io/nhnacademy-be12-trillion/book-service:latest
     container_name: trillion-book-peer1
-    ports:
-      - "10405:10405"
+    expose:
+      - 10405
     environment:
       - SERVER_PORT=10405
       - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@config-server:10418/
@@ -155,8 +155,8 @@ services:
     <<: *common-service
     image: ghcr.io/nhnacademy-be12-trillion/book-service:latest
     container_name: trillion-book-peer2
-    ports:
-      - "10406:10406"
+    expose:
+      - 10406
     environment:
       - SERVER_PORT=10406
       - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@config-server:10418/
@@ -173,8 +173,8 @@ services:
     <<: *common-service
     image: ghcr.io/nhnacademy-be12-trillion/order-service:latest
     container_name: trillion-order-peer1
-    ports:
-      - "10407:10407"
+    expose:
+      - 10407
     environment:
       - SERVER_PORT=10407
       - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@config-server:10418/
@@ -189,8 +189,8 @@ services:
     <<: *common-service
     image: ghcr.io/nhnacademy-be12-trillion/order-service:latest
     container_name: trillion-order-peer2
-    ports:
-      - "10408:10408"
+    expose:
+      - 10408
     environment:
       - SERVER_PORT=10408
       - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@config-server:10418/
@@ -206,8 +206,8 @@ services:
     <<: *common-service
     image: ghcr.io/nhnacademy-be12-trillion/coupon-service:latest
     container_name: trillion-coupon-peer
-    ports:
-      - "10409:10409"
+    expose:
+      - 10409
     environment:
       - SERVER_PORT=10409
       - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@config-server:10418/
@@ -222,8 +222,8 @@ services:
     <<: *common-service
     image: ghcr.io/nhnacademy-be12-trillion/search-service:latest
     container_name: trillion-search-peer1
-    ports:
-      - "10410:10410"
+    expose:
+      - 10410
     environment:
       - SERVER_PORT=10410
       - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@config-server:10418/
@@ -243,8 +243,8 @@ services:
     <<: *common-service
     image: ghcr.io/nhnacademy-be12-trillion/search-service:latest
     container_name: trillion-search-peer2
-    ports:
-      - "10411:10411"
+    expose:
+      - 10411
     environment:
       - SERVER_PORT=10411
       - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@config-server:10418/
@@ -267,7 +267,7 @@ services:
     image: ghcr.io/nhnacademy-be12-trillion/front-server:latest
     container_name: trillion-front-peer
     ports:
-      - "127.0.0.1:10402:10402" #nginx에 설정된 외부 포트를 사용
+      - "127.0.0.1:10402:10402"
     environment:
       - SERVER_PORT=10402
 
