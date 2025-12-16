@@ -132,7 +132,8 @@ jobs:
             sleep 5
             done
             echo "❌ Health check timeout: $URL"
-            return 1 }
+            return 1 
+            }
             # 롤링 작업을 위한 wait_health 함수 설정
 
             # 아래는 Docker 컨테이너 실행 명령어
