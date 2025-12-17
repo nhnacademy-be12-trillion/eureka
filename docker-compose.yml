@@ -132,7 +132,7 @@ services:
       - JWT_SECRET=${JWT_SECRET}
     healthcheck:
       <<: *health-default
-      test: [ "CMD", "wget", "-qO-", "http://127.0.0.1:10401/actuator/health" ]
+      test: [ "CMD", "wget", "-qO-", "http://127.0.0.1:10403/actuator/health" ]
 
   trillion-member:
     <<: *common-service
