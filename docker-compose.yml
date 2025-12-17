@@ -71,7 +71,7 @@ services:
       - 10400
     environment:
       - SERVER_PORT=10400
-      - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@config-server:10418/
+      - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@trillion-config-server:10418/
       - EUREKA_URL=http://be12-team1:nhnacademy123!@trillion-eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@trillion-eureka-peer2:10420/eureka/
     healthcheck:
       <<: *health-default
@@ -101,7 +101,7 @@ services:
       - 10401
     environment:
       - SERVER_PORT=10401
-      - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@config-server:10418/
+      - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@trillion-config-server:10418/
       - EUREKA_URL=http://be12-team1:nhnacademy123!@trillion-eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@trillion-eureka-peer2:10420/eureka/
       - PAYCO_CLIENT_ID=${PAYCO_CLIENT_ID}
       - PAYCO_CLIENT_SECRET=${PAYCO_CLIENT_SECRET}
@@ -122,7 +122,7 @@ services:
       - 10403
     environment:
       - SERVER_PORT=10403
-      - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@config-server:10418/
+      - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@trillion-config-server:10418/
       - EUREKA_URL=http://be12-team1:nhnacademy123!@trillion-eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@trillion-eureka-peer2:10420/eureka/
       - PAYCO_CLIENT_ID=${PAYCO_CLIENT_ID}
       - PAYCO_CLIENT_SECRET=${PAYCO_CLIENT_SECRET}
@@ -142,7 +142,7 @@ services:
       - 10404
     environment:
       - SERVER_PORT=10404
-      - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@config-server:10418/
+      - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@trillion-config-server:10418/
       - EUREKA_URL=http://be12-team1:nhnacademy123!@trillion-eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@trillion-eureka-peer2:10420/eureka/
       - DB_PASSWORD=${DB_PASSWORD}
       - SMTP_PASSWORD=${SMTP_PASSWORD}
@@ -159,7 +159,7 @@ services:
       - 10405
     environment:
       - SERVER_PORT=10405
-      - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@config-server:10418/
+      - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@trillion-config-server:10418/
       - EUREKA_URL=http://be12-team1:nhnacademy123!@trillion-eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@trillion-eureka-peer2:10420/eureka/
       - DB_PASSWORD=${DB_PASSWORD}
       - ALADIN_TTBKEY=${ALADIN_TTBKEY}
@@ -176,7 +176,7 @@ services:
       - 10406
     environment:
       - SERVER_PORT=10406
-      - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@config-server:10418/
+      - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@trillion-config-server:10418/
       - EUREKA_URL=http://be12-team1:nhnacademy123!@trillion-eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@trillion-eureka-peer2:10420/eureka/
       - DB_PASSWORD=${DB_PASSWORD}
       - ALADIN_TTBKEY=${ALADIN_TTBKEY}
@@ -194,7 +194,7 @@ services:
       - 10407
     environment:
       - SERVER_PORT=10407
-      - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@config-server:10418/
+      - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@trillion-config-server:10418/
       - EUREKA_URL=http://be12-team1:nhnacademy123!@trillion-eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@trillion-eureka-peer2:10420/eureka/
       - DB_PASSWORD=${DB_PASSWORD}
       - TOSS_KEY=${TOSS_KEY}
@@ -210,7 +210,7 @@ services:
       - 10408
     environment:
       - SERVER_PORT=10408
-      - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@config-server:10418/
+      - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@trillion-config-server:10418/
       - EUREKA_URL=http://be12-team1:nhnacademy123!@trillion-eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@trillion-eureka-peer2:10420/eureka/
       - DB_PASSWORD=${DB_PASSWORD}
       - TOSS_KEY=${TOSS_KEY}
@@ -227,7 +227,7 @@ services:
       - 10409
     environment:
       - SERVER_PORT=10409
-      - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@config-server:10418/
+      - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@trillion-config-server:10418/
       - EUREKA_URL=http://be12-team1:nhnacademy123!@trillion-eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@trillion-eureka-peer2:10420/eureka/
       - DB_PASSWORD=${DB_PASSWORD}
     healthcheck:
@@ -243,7 +243,7 @@ services:
       - 10410
     environment:
       - SERVER_PORT=10410
-      - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@config-server:10418/
+      - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@trillion-config-server:10418/
       - EUREKA_URL=http://be12-team1:nhnacademy123!@trillion-eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@trillion-eureka-peer2:10420/eureka/
       - DB_PASSWORD=${DB_PASSWORD}
       - ES_HOST=${ES_HOST}
@@ -263,7 +263,7 @@ services:
       - 10411
     environment:
       - SERVER_PORT=10411
-      - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@config-server:10418/
+      - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@trillion-config-server:10418/
       - EUREKA_URL=http://be12-team1:nhnacademy123!@trillion-eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@trillion-eureka-peer2:10420/eureka/
       - DB_PASSWORD=${DB_PASSWORD}
       - ES_HOST=${ES_HOST}
