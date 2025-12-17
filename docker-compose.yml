@@ -96,7 +96,7 @@ services:
   trillion-auth-peer1:
     <<: *common-service
     image: ghcr.io/nhnacademy-be12-trillion/auth-service:latest
-    container_name: trillion-auth
+    container_name: trillion-auth-peer1
     expose:
       - 10401
     environment:
@@ -117,7 +117,7 @@ services:
   trillion-auth-peer2:
     <<: *common-service
     image: ghcr.io/nhnacademy-be12-trillion/auth-service:latest
-    container_name: trillion-auth
+    container_name: trillion-auth-peer2
     expose:
       - 10403
     environment:
