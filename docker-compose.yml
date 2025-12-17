@@ -42,6 +42,7 @@ services:
     environment:
       - SERVER_PORT=10419
       - EUREKA_PEER_URL=http://be12-team1:nhnacademy123!@trillion-eureka-peer2:10420/eureka/
+      - HOSTNAME_ENV=trillion-eureka-peer1
     healthcheck:
       <<: *health-default
       test: [ "CMD", "wget", "-qO-", "http://127.0.0.1:10419/actuator/health" ]
@@ -56,6 +57,7 @@ services:
     environment:
       - SERVER_PORT=10420
       - EUREKA_PEER_URL=http://be12-team1:nhnacademy123!@trillion-eureka-peer1:10419/eureka/
+      - HOSTNAME_ENV=trillion-eureka-peer2
     healthcheck:
       <<: *health-default
       test: [ "CMD", "wget", "-qO-", "http://127.0.0.1:10420/actuator/health" ]

@@ -13,6 +13,9 @@ server:
   port: ${SERVER_PORT:10419}
 
 eureka:
+  server:
+    peer-node-read-timeout-ms: 1000
+
   client:
     register-with-eureka: true
     fetch-registry: true
@@ -22,6 +25,7 @@ eureka:
   instance:
     prefer-ip-address: true
     instance-id: ${spring.application.name}:${server.port}
+    hostname: ${HOSTNAME_ENV:localhost}
     registry:
       default-open-for-traffic-count: 0
 
