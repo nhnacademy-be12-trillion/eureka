@@ -37,8 +37,8 @@ services:
     <<: *common-service
     image: ghcr.io/nhnacademy-be12-trillion/eureka:latest
     container_name: trillion-eureka-peer1
-    expose:
-      - 10419
+    ports:
+      - "10419:10419"
     environment:
       - SERVER_PORT=10419
       - EUREKA_PEER_URL=http://be12-team1:nhnacademy123!@trillion-eureka-peer2:10420/eureka/
@@ -51,8 +51,8 @@ services:
     <<: *common-service
     image: ghcr.io/nhnacademy-be12-trillion/eureka:latest
     container_name: trillion-eureka-peer2
-    expose:
-      - 10420
+    ports:
+      - "10420:10420"
     environment:
       - SERVER_PORT=10420
       - EUREKA_PEER_URL=http://be12-team1:nhnacademy123!@trillion-eureka-peer1:10419/eureka/

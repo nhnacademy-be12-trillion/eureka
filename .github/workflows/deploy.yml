@@ -137,12 +137,6 @@ jobs:
             # 롤링 작업을 위한 wait_health 함수 설정
 
             # 아래는 Docker 컨테이너 실행 명령어
-            # Config Server 먼저
-            echo "Config Server update..."
-            docker compose rm -f ${CONFIG_SERVICE}
-            docker compose pull ${CONFIG_SERVICE}
-            docker compose up -d --no-deps ${CONFIG_SERVICE}
-            wait_health "http://127.0.0.1:10418/actuator/health" || exit 1
             
             # Eureka peer1
             echo "Eureka peer1 update..."
@@ -157,6 +151,13 @@ jobs:
             docker compose pull ${SERVICE_NAME2}
             docker compose up -d --no-deps ${SERVICE_NAME2}
             wait_health "http://127.0.0.1:10420/actuator/health" || exit 1
+            
+            # Config Server
+            echo "Config Server update..."
+            docker compose rm -f ${CONFIG_SERVICE}
+            docker compose pull ${CONFIG_SERVICE}
+            docker compose up -d --no-deps ${CONFIG_SERVICE}
+            wait_health "http://127.0.0.1:10418/actuator/health" || exit 1
             
             docker logout ${{ env.REGISTRY }}
             
