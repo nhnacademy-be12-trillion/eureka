@@ -22,8 +22,8 @@ services:
     <<: *common-service
     image: ghcr.io/nhnacademy-be12-trillion/config-server:latest #workflow에서 등록한 이미지 이름과 일치해야함
     container_name: trillion-config-server
-    expose:
-      - 10418
+    ports:
+      - "10418:10418"
     environment:    #서버에서 필요한 환경 설정 변수 주입(Eureka Workflow에서 생성한 .env 파일 에서 찾아옴)
       - SERVER_PORT=10418
       - CONFIG_PRIVATE_KEY=${CONFIG_PRIVATE_KEY} #SSH 내부의 keygen 폴더 하위의 github_rsa 공개키, 비밀키 형식을 맞춰서 설정함(config-repo Depoloy키 설정된 상태)
