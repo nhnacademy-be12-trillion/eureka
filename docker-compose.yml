@@ -41,11 +41,11 @@ services:
       - "10419:10419"
     environment:
       - SERVER_PORT=10419
-      - EUREKA_PEER_URL=http://be12-team1:nhnacademy123!@trillion-eureka-peer2:10420/eureka/
+      - EUREKA_PEER_URL=http://be12-team1:nhnacademy123%21@trillion-eureka-peer2:10420/eureka/
       - HOSTNAME_ENV=trillion-eureka-peer1
     healthcheck:
       <<: *health-default
-      test: [ "CMD", "wget", "-qO-", "http://127.0.0.1:10419/actuator/health" ]
+      test: ["CMD-SHELL", "wget -qO- --user=$${SPRING_SECURITY_USER_NAME:-be12-team1} --password=$${SPRING_SECURITY_USER_PASSWORD:-nhnacademy123!} http://127.0.0.1:$${SERVER_PORT}/actuator/health | grep -q '\"status\":\"UP\"'"]
 
   # 2. 두 번째 유레카 서버 (Backup Peer)
   trillion-eureka-peer2:
@@ -56,11 +56,11 @@ services:
       - "10420:10420"
     environment:
       - SERVER_PORT=10420
-      - EUREKA_PEER_URL=http://be12-team1:nhnacademy123!@trillion-eureka-peer1:10419/eureka/
+      - EUREKA_PEER_URL=http://be12-team1:nhnacademy123%21@trillion-eureka-peer1:10419/eureka/
       - HOSTNAME_ENV=trillion-eureka-peer2
     healthcheck:
       <<: *health-default
-      test: [ "CMD", "wget", "-qO-", "http://127.0.0.1:10420/actuator/health" ]
+      test: ["CMD-SHELL", "wget -qO- --user=$${SPRING_SECURITY_USER_NAME:-be12-team1} --password=$${SPRING_SECURITY_USER_PASSWORD:-nhnacademy123!} http://127.0.0.1:$${SERVER_PORT}/actuator/health | grep -q '\"status\":\"UP\"'"]
 
   # ----------------------------------------
   # API 게이트웨이 서비스 (Load Balancer & Routing)
