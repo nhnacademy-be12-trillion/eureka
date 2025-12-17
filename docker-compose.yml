@@ -5,7 +5,10 @@ x-common-service: &common-service
   env_file:
     - ./.env # 서비스마다 환경변수 파일 설정
   networks:
-    - msa-network # 컨테이너별 네트워크 설정
+    - trillion-book # 컨테이너별 네트워크 설정
+  labels:
+    app.stack: "trillion-book"
+
 x-health-default: &health-default
   interval: 10s
   timeout: 3s
@@ -229,7 +232,6 @@ services:
       - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@config-server:10418/
       - EUREKA_URL=http://be12-team1:nhnacademy123!@trillion-eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@trillion-eureka-peer2:10420/eureka/
       - DB_PASSWORD=${DB_PASSWORD}
-      - GEMINI_SEARCH_KEY=${GEMINI_SEARCH_KEY}
       - ES_HOST=${ES_HOST}
       - ES_PASSWORD=${ES_PASSWORD}
       - GEMINI_SEARCH_KEY=${GEMINI_SEARCH_KEY}
@@ -279,7 +281,7 @@ services:
     container_name: trillion-filebeat
     user: root
     networks:
-      - msa-network
+      - trillion-book
     volumes:
       - ./filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
@@ -291,5 +293,5 @@ services:
 
 # 모든 컨테이너가 공유할 네트워크 정의
 networks:
-  msa-network:
+  trillion-book:
     driver: bridge
