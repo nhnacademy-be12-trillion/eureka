@@ -18,7 +18,7 @@ services:
   # ----------------------------------------
   # 핵심 인프라 서비스 (Discovery & Config)
   # ----------------------------------------
-  config-server:
+  trillion-config-server:
     <<: *common-service
     image: ghcr.io/nhnacademy-be12-trillion/config-server:latest #workflow에서 등록한 이미지 이름과 일치해야함
     container_name: trillion-config-server
@@ -33,7 +33,7 @@ services:
       test: [ "CMD", "wget", "-qO-", "http://127.0.0.1:10418/actuator/health" ]  # docker compose ps 로 상태 조회 시 actuator 조회 시도
 
   # 1. 첫 번째 유레카 서버 (Active Peer)
-  eureka-peer1:
+  trillion-eureka-peer1:
     <<: *common-service
     image: ghcr.io/nhnacademy-be12-trillion/eureka:latest
     container_name: trillion-eureka-peer1
@@ -47,7 +47,7 @@ services:
       test: [ "CMD", "wget", "-qO-", "http://127.0.0.1:10419/actuator/health" ]
 
   # 2. 두 번째 유레카 서버 (Backup Peer)
-  eureka-peer2:
+  trillion-eureka-peer2:
     <<: *common-service
     image: ghcr.io/nhnacademy-be12-trillion/eureka:latest
     container_name: trillion-eureka-peer2
@@ -63,17 +63,16 @@ services:
   # ----------------------------------------
   # API 게이트웨이 서비스 (Load Balancer & Routing)
   # ----------------------------------------
-  gateway-peer1:
+  trillion-gateway:
     <<: *common-service
     image: ghcr.io/nhnacademy-be12-trillion/gateway:latest
-    container_name: trillion-gateway-peer1
-    ports:
-      - "127.0.0.1:10400:10400"
+    container_name: trillion-gateway
+    expose:
+      - 10400
     environment:
       - SERVER_PORT=10400
       - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@config-server:10418/
       - EUREKA_URL=http://be12-team1:nhnacademy123!@trillion-eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@trillion-eureka-peer2:10420/eureka/
-      - JWT_SECRET=${JWT_SECRET}
     healthcheck:
       <<: *health-default
       test: [ "CMD", "wget", "-qO-", "http://127.0.0.1:10400/actuator/health" ]
@@ -91,31 +90,51 @@ services:
 #      - JWT_SECRET=${JWT_SECRET}
 
   # ----------------------------------------
-  # 마이크로서비스 (Member, Book, Order, Coupon, Search)
+  # 마이크로서비스 (Auth, Member, Book, Order, Coupon, Search)
   # ----------------------------------------
-  # 1. 회원 서비스 (Member Service)
-  member-peer1:
+  # 1. 인증 서비스 (Auth Service)
+  trillion-auth-peer1:
     <<: *common-service
-    image: ghcr.io/nhnacademy-be12-trillion/member-service:latest
-    container_name: trillion-member-peer1
+    image: ghcr.io/nhnacademy-be12-trillion/auth-service:latest
+    container_name: trillion-auth
+    expose:
+      - 10401
+    environment:
+      - SERVER_PORT=10401
+      - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@config-server:10418/
+      - EUREKA_URL=http://be12-team1:nhnacademy123!@trillion-eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@trillion-eureka-peer2:10420/eureka/
+      - PAYCO_CLIENT_ID=${PAYCO_CLIENT_ID}
+      - PAYCO_CLIENT_SECRET=${PAYCO_CLIENT_SECRET}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - JWT_SECRET=${JWT_SECRET}
+    healthcheck:
+      <<: *health-default
+      test: [ "CMD", "wget", "-qO-", "http://127.0.0.1:10401/actuator/health" ]
+
+  # 2. 멤버 서비스 (Member Service)
+  trillion-auth-peer2:
+    <<: *common-service
+    image: ghcr.io/nhnacademy-be12-trillion/auth-service:latest
+    container_name: trillion-auth
     expose:
       - 10403
     environment:
       - SERVER_PORT=10403
       - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@config-server:10418/
       - EUREKA_URL=http://be12-team1:nhnacademy123!@trillion-eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@trillion-eureka-peer2:10420/eureka/
-      - DB_PASSWORD=${DB_PASSWORD}
       - PAYCO_CLIENT_ID=${PAYCO_CLIENT_ID}
       - PAYCO_CLIENT_SECRET=${PAYCO_CLIENT_SECRET}
       - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
       - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
-      - SMTP_PASSWORD=${SMTP_PASSWORD}
+      - DB_PASSWORD=${DB_PASSWORD}
       - JWT_SECRET=${JWT_SECRET}
     healthcheck:
       <<: *health-default
-      test: [ "CMD", "wget", "-qO-", "http://127.0.0.1:10403/actuator/health" ]
+      test: [ "CMD", "wget", "-qO-", "http://127.0.0.1:10401/actuator/health" ]
 
-  member-peer2:
+  trillion-member:
     <<: *common-service
     image: ghcr.io/nhnacademy-be12-trillion/member-service:latest
     container_name: trillion-member-peer2
@@ -126,18 +145,13 @@ services:
       - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@config-server:10418/
       - EUREKA_URL=http://be12-team1:nhnacademy123!@trillion-eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@trillion-eureka-peer2:10420/eureka/
       - DB_PASSWORD=${DB_PASSWORD}
-      - PAYCO_CLIENT_ID=${PAYCO_CLIENT_ID}
-      - PAYCO_CLIENT_SECRET=${PAYCO_CLIENT_SECRET}
-      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
-      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
       - SMTP_PASSWORD=${SMTP_PASSWORD}
-      - JWT_SECRET=${JWT_SECRET}
     healthcheck:
       <<: *health-default
       test: [ "CMD", "wget", "-qO-", "http://127.0.0.1:10404/actuator/health" ]
 
-  # 2. 도서 서비스 (Book Service)
-  book-peer1:
+  # 3. 도서 서비스 (Book Service)
+  trillion-book-peer1:
     <<: *common-service
     image: ghcr.io/nhnacademy-be12-trillion/book-service:latest
     container_name: trillion-book-peer1
@@ -154,7 +168,7 @@ services:
       <<: *health-default
       test: [ "CMD", "wget", "-qO-", "http://127.0.0.1:10405/actuator/health" ]
 
-  book-peer2:
+  trillion-book-peer2:
     <<: *common-service
     image: ghcr.io/nhnacademy-be12-trillion/book-service:latest
     container_name: trillion-book-peer2
@@ -171,8 +185,8 @@ services:
       <<: *health-default
       test: [ "CMD", "wget", "-qO-", "http://127.0.0.1:10406/actuator/health" ]
 
-  # 3. 주문 서비스 (Order Service)
-  order-peer1:
+  # 4. 주문 서비스 (Order Service)
+  trillion-order-peer1:
     <<: *common-service
     image: ghcr.io/nhnacademy-be12-trillion/order-service:latest
     container_name: trillion-order-peer1
@@ -188,7 +202,7 @@ services:
       <<: *health-default
       test: [ "CMD", "wget", "-qO-", "http://127.0.0.1:10407/actuator/health" ]
 
-  order-peer2:
+  trillion-order-peer2:
     <<: *common-service
     image: ghcr.io/nhnacademy-be12-trillion/order-service:latest
     container_name: trillion-order-peer2
@@ -204,8 +218,8 @@ services:
       <<: *health-default
       test: [ "CMD", "wget", "-qO-", "http://127.0.0.1:10408/actuator/health" ]
 
-  # 4. 쿠폰 서비스 (Coupon Service - 단일 인스턴스)
-  coupon-service:
+  # 5. 쿠폰 서비스 (Coupon Service - 단일 인스턴스)
+  trillion-coupon-service:
     <<: *common-service
     image: ghcr.io/nhnacademy-be12-trillion/coupon-service:latest
     container_name: trillion-coupon-peer
@@ -220,8 +234,8 @@ services:
       <<: *health-default
       test: [ "CMD", "wget", "-qO-", "http://127.0.0.1:10409/actuator/health" ]
 
-  # 5. 검색 서비스 (Search Service)
-  search-peer1:
+  # 6. 검색 서비스 (Search Service)
+  trillion-search-peer1:
     <<: *common-service
     image: ghcr.io/nhnacademy-be12-trillion/search-service:latest
     container_name: trillion-search-peer1
@@ -241,7 +255,7 @@ services:
       <<: *health-default
       test: [ "CMD", "wget", "-qO-", "http://127.0.0.1:10410/actuator/health" ]
 
-  search-peer2:
+  trillion-search-peer2:
     <<: *common-service
     image: ghcr.io/nhnacademy-be12-trillion/search-service:latest
     container_name: trillion-search-peer2
@@ -264,7 +278,7 @@ services:
   # ----------------------------------------
   # 프론트엔드 서비스 (Spring Boot / Thymeleaf or Nginx static)
   # ----------------------------------------
-  front-server:
+  trillion-front-server:
     <<: *common-service
     image: ghcr.io/nhnacademy-be12-trillion/front-server:latest
     container_name: trillion-front-peer
