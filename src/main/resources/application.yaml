@@ -23,7 +23,7 @@ eureka:
       defaultZone: ${EUREKA_PEER_URL}
 
   instance:
-    prefer-ip-address: false
+    prefer-ip-address: true
     instance-id: ${spring.application.name}:${HOSTNAME_ENV}:${server.port}
     hostname: ${HOSTNAME_ENV:localhost}
     registry:
