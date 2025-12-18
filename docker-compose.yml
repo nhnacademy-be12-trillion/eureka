@@ -200,6 +200,7 @@ services:
       - EUREKA_URL=http://be12-team1:nhnacademy123!@trillion-eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@trillion-eureka-peer2:10420/eureka/
       - DB_PASSWORD=${DB_PASSWORD}
       - TOSS_KEY=${TOSS_KEY}
+      - REDIS_PW=${REDIS_PW}
     healthcheck:
       <<: *health-default
       test: [ "CMD", "wget", "-qO-", "http://127.0.0.1:10407/actuator/health" ]
@@ -216,6 +217,7 @@ services:
       - EUREKA_URL=http://be12-team1:nhnacademy123!@trillion-eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@trillion-eureka-peer2:10420/eureka/
       - DB_PASSWORD=${DB_PASSWORD}
       - TOSS_KEY=${TOSS_KEY}
+      - REDIS_PW=${REDIS_PW}
     healthcheck:
       <<: *health-default
       test: [ "CMD", "wget", "-qO-", "http://127.0.0.1:10408/actuator/health" ]
@@ -299,7 +301,7 @@ services:
     networks:
       - trillion-book
     volumes:
-      - ./filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+      - ./filebeats.yml:/usr/share/filebeat/filebeat.yml:ro
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
     command: [ "filebeat", "-e", "--strict.perms=false" ]
