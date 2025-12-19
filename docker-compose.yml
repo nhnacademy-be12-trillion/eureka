@@ -14,6 +14,10 @@ x-health-default: &health-default
   timeout: 3s
   retries: 12
 
+x-common-volumes: &common-volumes
+  volumes:
+  - trillion-book-logs: /app/logs
+
 services:
   # ----------------------------------------
   # 핵심 인프라 서비스 (Discovery & Config)
@@ -21,13 +25,14 @@ services:
   trillion-config-server:
     <<: *common-service
     image: ghcr.io/nhnacademy-be12-trillion/config-server:latest #workflow에서 등록한 이미지 이름과 일치해야함
-    container_name: trillion-config-server
+    container_name: trillion-config-peer
     ports:
       - "10418:10418"
     environment:    #서버에서 필요한 환경 설정 변수 주입(Eureka Workflow에서 생성한 .env 파일 에서 찾아옴)
       - SERVER_PORT=10418
       - CONFIG_PRIVATE_KEY=${CONFIG_PRIVATE_KEY} #SSH 내부의 keygen 폴더 하위의 github_rsa 공개키, 비밀키 형식을 맞춰서 설정함(config-repo Depoloy키 설정된 상태)
       - EUREKA_URL=http://be12-team1:nhnacademy123!@trillion-eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@trillion-eureka-peer2:10420/eureka/ #유레카 서버 주소 입력
+      - LOG_FILENAME=trillion-config-peer
     healthcheck:
       <<: *health-default
       test: [ "CMD", "wget", "-qO-", "http://127.0.0.1:10418/actuator/health" ]  # docker compose ps 로 상태 조회 시 actuator 조회 시도
@@ -35,6 +40,7 @@ services:
   # 1. 첫 번째 유레카 서버 (Active Peer)
   trillion-eureka-peer1:
     <<: *common-service
+    <<: *common-volumes
     image: ghcr.io/nhnacademy-be12-trillion/eureka:latest
     container_name: trillion-eureka-peer1
     ports:
@@ -43,6 +49,7 @@ services:
       - SERVER_PORT=10419
       - EUREKA_PEER_URL=http://be12-team1:nhnacademy123%21@trillion-eureka-peer2:10420/eureka/
       - HOSTNAME_ENV=trillion-eureka-peer1
+      - LOG_FILENAME=trillion-eureka-peer1
     healthcheck:
       <<: *health-default
       test: ["CMD-SHELL", "wget -qO- --user=$${SPRING_SECURITY_USER_NAME:-be12-team1} --password=$${SPRING_SECURITY_USER_PASSWORD:-nhnacademy123!} http://127.0.0.1:$${SERVER_PORT}/actuator/health | grep -q '\"status\":\"UP\"'"]
@@ -50,6 +57,7 @@ services:
   # 2. 두 번째 유레카 서버 (Backup Peer)
   trillion-eureka-peer2:
     <<: *common-service
+    <<: *common-volumes
     image: ghcr.io/nhnacademy-be12-trillion/eureka:latest
     container_name: trillion-eureka-peer2
     ports:
@@ -58,6 +66,7 @@ services:
       - SERVER_PORT=10420
       - EUREKA_PEER_URL=http://be12-team1:nhnacademy123%21@trillion-eureka-peer1:10419/eureka/
       - HOSTNAME_ENV=trillion-eureka-peer2
+      - LOG_FILENAME=trillion-eureka-peer2
     healthcheck:
       <<: *health-default
       test: ["CMD-SHELL", "wget -qO- --user=$${SPRING_SECURITY_USER_NAME:-be12-team1} --password=$${SPRING_SECURITY_USER_PASSWORD:-nhnacademy123!} http://127.0.0.1:$${SERVER_PORT}/actuator/health | grep -q '\"status\":\"UP\"'"]
@@ -65,16 +74,18 @@ services:
   # ----------------------------------------
   # API 게이트웨이 서비스 (Load Balancer & Routing)
   # ----------------------------------------
-  trillion-gateway:
+  trillion-gateway-peer:
     <<: *common-service
+    <<: *common-volumes
     image: ghcr.io/nhnacademy-be12-trillion/gateway:latest
-    container_name: trillion-gateway
+    container_name: trillion-gateway-peer
     expose:
       - 10400
     environment:
       - SERVER_PORT=10400
       - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@trillion-config-server:10418/
       - EUREKA_URL=http://be12-team1:nhnacademy123!@trillion-eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@trillion-eureka-peer2:10420/eureka/
+      - LOG_FILENAME=trillion-gateway-peer
     healthcheck:
       <<: *health-default
       test: [ "CMD", "wget", "-qO-", "http://127.0.0.1:10400/actuator/health" ]
@@ -111,6 +122,7 @@ services:
       - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
       - DB_PASSWORD=${DB_PASSWORD}
       - JWT_SECRET=${JWT_SECRET}
+      - LOG_FILENAME=trillion-auth-peer1
     healthcheck:
       <<: *health-default
       test: [ "CMD", "wget", "-qO-", "http://127.0.0.1:10401/actuator/health" ]
@@ -132,14 +144,15 @@ services:
       - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
       - DB_PASSWORD=${DB_PASSWORD}
       - JWT_SECRET=${JWT_SECRET}
+      - LOG_FILENAME=trillion-auth-peer2
     healthcheck:
       <<: *health-default
       test: [ "CMD", "wget", "-qO-", "http://127.0.0.1:10403/actuator/health" ]
 
-  trillion-member:
+  trillion-member-peer:
     <<: *common-service
     image: ghcr.io/nhnacademy-be12-trillion/member-service:latest
-    container_name: trillion-member-peer2
+    container_name: trillion-member-peer
     expose:
       - 10404
     environment:
@@ -148,6 +161,7 @@ services:
       - EUREKA_URL=http://be12-team1:nhnacademy123!@trillion-eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@trillion-eureka-peer2:10420/eureka/
       - DB_PASSWORD=${DB_PASSWORD}
       - SMTP_PASSWORD=${SMTP_PASSWORD}
+      - LOG_FILENAME=trillion-member-peer
     healthcheck:
       <<: *health-default
       test: [ "CMD", "wget", "-qO-", "http://127.0.0.1:10404/actuator/health" ]
@@ -166,6 +180,7 @@ services:
       - DB_PASSWORD=${DB_PASSWORD}
       - ALADIN_TTBKEY=${ALADIN_TTBKEY}
       - GEMINI_KEY=${GEMINI_KEY}
+      - LOG_FILENAME=trillion-book-peer1
     healthcheck:
       <<: *health-default
       test: [ "CMD", "wget", "-qO-", "http://127.0.0.1:10405/actuator/health" ]
@@ -183,6 +198,7 @@ services:
       - DB_PASSWORD=${DB_PASSWORD}
       - ALADIN_TTBKEY=${ALADIN_TTBKEY}
       - GEMINI_KEY=${GEMINI_KEY}
+      - LOG_FILENAME=trillion-book-peer2
     healthcheck:
       <<: *health-default
       test: [ "CMD", "wget", "-qO-", "http://127.0.0.1:10406/actuator/health" ]
@@ -201,6 +217,7 @@ services:
       - DB_PASSWORD=${DB_PASSWORD}
       - TOSS_KEY=${TOSS_KEY}
       - REDIS_PW=${REDIS_PW}
+      - LOG_FILENAME=trillion-order-peer1
     healthcheck:
       <<: *health-default
       test: [ "CMD", "wget", "-qO-", "http://127.0.0.1:10407/actuator/health" ]
@@ -218,12 +235,13 @@ services:
       - DB_PASSWORD=${DB_PASSWORD}
       - TOSS_KEY=${TOSS_KEY}
       - REDIS_PW=${REDIS_PW}
+      - LOG_FILENAME=trillion-order-peer2
     healthcheck:
       <<: *health-default
       test: [ "CMD", "wget", "-qO-", "http://127.0.0.1:10408/actuator/health" ]
 
   # 5. 쿠폰 서비스 (Coupon Service - 단일 인스턴스)
-  trillion-coupon-service:
+  trillion-coupon-peer:
     <<: *common-service
     image: ghcr.io/nhnacademy-be12-trillion/coupon-service:latest
     container_name: trillion-coupon-peer
@@ -234,6 +252,7 @@ services:
       - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@trillion-config-server:10418/
       - EUREKA_URL=http://be12-team1:nhnacademy123!@trillion-eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@trillion-eureka-peer2:10420/eureka/
       - DB_PASSWORD=${DB_PASSWORD}
+      - LOG_FILENAME=trillion-coupon-peer
     healthcheck:
       <<: *health-default
       test: [ "CMD", "wget", "-qO-", "http://127.0.0.1:10409/actuator/health" ]
@@ -255,6 +274,7 @@ services:
       - GEMINI_SEARCH_KEY=${GEMINI_SEARCH_KEY}
       - OLLAMA_BASE_URL=${OLLAMA_BASE_URL}
       - RERANKER_BASE_URL=${RERANKER_BASE_URL}
+      - LOG_FILENAME=trillion-search-peer1
     healthcheck:
       <<: *health-default
       test: [ "CMD", "wget", "-qO-", "http://127.0.0.1:10410/actuator/health" ]
@@ -275,6 +295,7 @@ services:
       - GEMINI_SEARCH_KEY=${GEMINI_SEARCH_KEY}
       - OLLAMA_BASE_URL=${OLLAMA_BASE_URL}
       - RERANKER_BASE_URL=${RERANKER_BASE_URL}
+      - LOG_FILENAME=trillion-search-peer2
     healthcheck:
       <<: *health-default
       test: [ "CMD", "wget", "-qO-", "http://127.0.0.1:10411/actuator/health" ]
@@ -282,7 +303,7 @@ services:
   # ----------------------------------------
   # 프론트엔드 서비스 (Spring Boot / Thymeleaf or Nginx static)
   # ----------------------------------------
-  trillion-front-server:
+  trillion-front-peer:
     <<: *common-service
     image: ghcr.io/nhnacademy-be12-trillion/front-server:latest
     container_name: trillion-front-peer
@@ -290,6 +311,7 @@ services:
       - "127.0.0.1:10402:10402"
     environment:
       - SERVER_PORT=10402
+      - LOG_FILENAME=trillion-front-peer
 
   # ----------------------------------------
   # 로그 수집기 Beats
@@ -302,13 +324,13 @@ services:
       - trillion-book
     volumes:
       - ./filebeats.yml:/usr/share/filebeat/filebeat.yml:ro
-      - /var/lib/docker/containers:/var/lib/docker/containers:ro
-      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - trillion-book-logs:/logs:ro
     command: [ "filebeat", "-e", "--strict.perms=false" ]
     restart: unless-stopped
 
 
-
+volumes:
+  trillion-book-logs:
 # 모든 컨테이너가 공유할 네트워크 정의
 networks:
   trillion-book:
