@@ -16,7 +16,7 @@ x-health-default: &health-default
 
 x-common-volumes: &common-volumes
   volumes:
-  - trillion-book-logs: /app/logs
+  - trillion-book-logs:/app/logs
 
 services:
   # ----------------------------------------
@@ -25,7 +25,7 @@ services:
   trillion-config-server:
     <<: *common-service
     image: ghcr.io/nhnacademy-be12-trillion/config-server:latest #workflow에서 등록한 이미지 이름과 일치해야함
-    container_name: trillion-config-peer
+    container_name: trillion-config-server
     ports:
       - "10418:10418"
     environment:    #서버에서 필요한 환경 설정 변수 주입(Eureka Workflow에서 생성한 .env 파일 에서 찾아옴)
@@ -39,8 +39,7 @@ services:
 
   # 1. 첫 번째 유레카 서버 (Active Peer)
   trillion-eureka-peer1:
-    <<: *common-service
-    <<: *common-volumes
+    <<: [ *common-service, *common-volumes ]
     image: ghcr.io/nhnacademy-be12-trillion/eureka:latest
     container_name: trillion-eureka-peer1
     ports:
@@ -56,8 +55,7 @@ services:
 
   # 2. 두 번째 유레카 서버 (Backup Peer)
   trillion-eureka-peer2:
-    <<: *common-service
-    <<: *common-volumes
+    <<: [ *common-service, *common-volumes ]
     image: ghcr.io/nhnacademy-be12-trillion/eureka:latest
     container_name: trillion-eureka-peer2
     ports:
@@ -75,8 +73,7 @@ services:
   # API 게이트웨이 서비스 (Load Balancer & Routing)
   # ----------------------------------------
   trillion-gateway-peer:
-    <<: *common-service
-    <<: *common-volumes
+    <<: [ *common-service, *common-volumes ]
     image: ghcr.io/nhnacademy-be12-trillion/gateway:latest
     container_name: trillion-gateway-peer
     expose:
@@ -314,23 +311,34 @@ services:
       - LOG_FILENAME=trillion-front-peer
 
   # ----------------------------------------
-  # 로그 수집기 Beats
+  # 로그 관련 설정
   # ----------------------------------------
-  filebeat:
-    image: docker.elastic.co/beats/filebeat:8.11.0
-    container_name: trillion-filebeat
-    user: root
+#  filebeat:
+#    image: docker.elastic.co/beats/filebeat:8.11.0
+#    container_name: trillion-filebeat
+#    user: root
+#    networks:
+#      - trillion-book
+#    volumes:
+#      - ./filebeats.yml:/usr/share/filebeat/filebeat.yml:ro
+#      - trillion-book-logs:/logs:ro
+#    command: [ "filebeat", "-e", "--strict.perms=false" ]
+#    restart: unless-stopped
+
+  trillion-fluentd:
+    image: fluent/fluentd:v1.14-debian-1
+    container_name: trillion-fluentd
+    volumes:
+      - ./fluentd.conf:/fluentd/etc/fluent.conf
+      - trillion-book-logs:/app/logs
+      - fluentd-state:/fluentd/log
     networks:
       - trillion-book
-    volumes:
-      - ./filebeats.yml:/usr/share/filebeat/filebeat.yml:ro
-      - trillion-book-logs:/logs:ro
-    command: [ "filebeat", "-e", "--strict.perms=false" ]
-    restart: unless-stopped
 
 
 volumes:
   trillion-book-logs:
+  fluentd-state:
 # 모든 컨테이너가 공유할 네트워크 정의
 networks:
   trillion-book:

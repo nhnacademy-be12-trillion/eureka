@@ -12,8 +12,11 @@
                 <logLevel/>
                 <threadName/>
                 <loggerName/>
-                <message/>
-                <mdc/> <stackTrace/>
+                <pattern>
+                    <pattern>{"message":"%msg"}</pattern>
+                </pattern>
+                <mdc/>
+                <stackTrace/>
             </providers>
         </encoder>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
@@ -24,5 +27,5 @@
 
     <root level="INFO">
         <appender-ref ref="ROLLING_FILE"/>
-        <appender-ref ref="CONSOLE"/> </root>
+    </root>
 </configuration>
