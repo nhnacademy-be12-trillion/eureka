@@ -6,8 +6,6 @@ x-common-service: &common-service
     - ./.env # 서비스마다 환경변수 파일 설정
   networks:
     - trillion-book # 컨테이너별 네트워크 설정
-  labels:
-    app.stack: "trillion-book"
 
 x-health-default: &health-default
   interval: 10s
@@ -88,11 +86,9 @@ services:
       test: [ "CMD", "wget", "-qO-", "http://127.0.0.1:10400/actuator/health" ]
 
 #  gateway-peer2:
-#    <<: *common-service
+#    <<: [ *common-service, *common-volumes ]
 #    image: ghcr.io/nhnacademy-be12-trillion/gateway:latest
 #    container_name: trillion-gateway-peer2
-#    ports:
-#      - "10401:10401"
 #    environment:
 #      - SERVER_PORT=10401
 #      - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@config-server:10418/
@@ -104,7 +100,7 @@ services:
   # ----------------------------------------
   # 1. 인증 서비스 (Auth Service)
   trillion-auth-peer1:
-    <<: *common-service
+    <<: [ *common-service, *common-volumes ]
     image: ghcr.io/nhnacademy-be12-trillion/auth-service:latest
     container_name: trillion-auth-peer1
     expose:
@@ -126,7 +122,7 @@ services:
 
   # 2. 멤버 서비스 (Member Service)
   trillion-auth-peer2:
-    <<: *common-service
+    <<: [ *common-service, *common-volumes ]
     image: ghcr.io/nhnacademy-be12-trillion/auth-service:latest
     container_name: trillion-auth-peer2
     expose:
@@ -147,7 +143,7 @@ services:
       test: [ "CMD", "wget", "-qO-", "http://127.0.0.1:10403/actuator/health" ]
 
   trillion-member-peer:
-    <<: *common-service
+    <<: [ *common-service, *common-volumes ]
     image: ghcr.io/nhnacademy-be12-trillion/member-service:latest
     container_name: trillion-member-peer
     expose:
@@ -165,7 +161,7 @@ services:
 
   # 3. 도서 서비스 (Book Service)
   trillion-book-peer1:
-    <<: *common-service
+    <<: [ *common-service, *common-volumes ]
     image: ghcr.io/nhnacademy-be12-trillion/book-service:latest
     container_name: trillion-book-peer1
     expose:
@@ -183,7 +179,7 @@ services:
       test: [ "CMD", "wget", "-qO-", "http://127.0.0.1:10405/actuator/health" ]
 
   trillion-book-peer2:
-    <<: *common-service
+    <<: [ *common-service, *common-volumes ]
     image: ghcr.io/nhnacademy-be12-trillion/book-service:latest
     container_name: trillion-book-peer2
     expose:
@@ -202,7 +198,7 @@ services:
 
   # 4. 주문 서비스 (Order Service)
   trillion-order-peer1:
-    <<: *common-service
+    <<: [ *common-service, *common-volumes ]
     image: ghcr.io/nhnacademy-be12-trillion/order-service:latest
     container_name: trillion-order-peer1
     expose:
@@ -220,7 +216,7 @@ services:
       test: [ "CMD", "wget", "-qO-", "http://127.0.0.1:10407/actuator/health" ]
 
   trillion-order-peer2:
-    <<: *common-service
+    <<: [ *common-service, *common-volumes ]
     image: ghcr.io/nhnacademy-be12-trillion/order-service:latest
     container_name: trillion-order-peer2
     expose:
@@ -239,7 +235,7 @@ services:
 
   # 5. 쿠폰 서비스 (Coupon Service - 단일 인스턴스)
   trillion-coupon-peer:
-    <<: *common-service
+    <<: [ *common-service, *common-volumes ]
     image: ghcr.io/nhnacademy-be12-trillion/coupon-service:latest
     container_name: trillion-coupon-peer
     expose:
@@ -256,7 +252,7 @@ services:
 
   # 6. 검색 서비스 (Search Service)
   trillion-search-peer1:
-    <<: *common-service
+    <<: [ *common-service, *common-volumes ]
     image: ghcr.io/nhnacademy-be12-trillion/search-service:latest
     container_name: trillion-search-peer1
     expose:
@@ -277,7 +273,7 @@ services:
       test: [ "CMD", "wget", "-qO-", "http://127.0.0.1:10410/actuator/health" ]
 
   trillion-search-peer2:
-    <<: *common-service
+    <<: [ *common-service, *common-volumes ]
     image: ghcr.io/nhnacademy-be12-trillion/search-service:latest
     container_name: trillion-search-peer2
     expose:
@@ -301,7 +297,7 @@ services:
   # 프론트엔드 서비스 (Spring Boot / Thymeleaf or Nginx static)
   # ----------------------------------------
   trillion-front-peer:
-    <<: *common-service
+    <<: [ *common-service, *common-volumes ]
     image: ghcr.io/nhnacademy-be12-trillion/front-server:latest
     container_name: trillion-front-peer
     ports:
@@ -326,7 +322,9 @@ services:
 #    restart: unless-stopped
 
   trillion-fluentd:
-    image: fluent/fluentd:v1.14-debian-1
+    build:
+      context: .
+      dockerfile: Dockerfile.fluentd
     container_name: trillion-fluentd
     volumes:
       - ./fluentd.conf:/fluentd/etc/fluent.conf
