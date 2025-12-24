@@ -114,6 +114,7 @@ services:
       - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
       - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
       - DB_PASSWORD=${DB_PASSWORD}
+      - REDIS_PW=${REDIS_PW}
       - JWT_SECRET=${JWT_SECRET}
       - LOG_FILENAME=trillion-auth-peer1
     healthcheck:
@@ -136,6 +137,7 @@ services:
       - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
       - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
       - DB_PASSWORD=${DB_PASSWORD}
+      - REDIS_PW=${REDIS_PW}
       - JWT_SECRET=${JWT_SECRET}
       - LOG_FILENAME=trillion-auth-peer2
     healthcheck:
@@ -154,6 +156,7 @@ services:
       - EUREKA_URL=http://be12-team1:nhnacademy123!@trillion-eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@trillion-eureka-peer2:10420/eureka/
       - DB_PASSWORD=${DB_PASSWORD}
       - SMTP_PASSWORD=${SMTP_PASSWORD}
+      - REDIS_PW=${REDIS_PW}
       - LOG_FILENAME=trillion-member-peer
     healthcheck:
       <<: *health-default
@@ -266,6 +269,7 @@ services:
       - ES_PASSWORD=${ES_PASSWORD}
       - GEMINI_SEARCH_KEY=${GEMINI_SEARCH_KEY}
       - OLLAMA_BASE_URL=${OLLAMA_BASE_URL}
+      - REDIS_PW=${REDIS_PW}
       - RERANKER_BASE_URL=${RERANKER_BASE_URL}
       - LOG_FILENAME=trillion-search-peer1
     healthcheck:
@@ -287,6 +291,7 @@ services:
       - ES_PASSWORD=${ES_PASSWORD}
       - GEMINI_SEARCH_KEY=${GEMINI_SEARCH_KEY}
       - OLLAMA_BASE_URL=${OLLAMA_BASE_URL}
+      - REDIS_PW=${REDIS_PW}
       - RERANKER_BASE_URL=${RERANKER_BASE_URL}
       - LOG_FILENAME=trillion-search-peer2
     healthcheck:
