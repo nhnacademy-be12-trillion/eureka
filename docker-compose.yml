@@ -314,7 +314,7 @@ services:
 
   trillion-alert-service:
     <<: *common-service
-    image: ghcr.io/nhnacademy-be12-trillion/coupon-service:latest
+    image: ghcr.io/nhnacademy-be12-trillion/alert-service:latest
     container_name: trillion-alert-service
     expose:
       - 10416
