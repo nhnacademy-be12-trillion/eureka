@@ -313,7 +313,7 @@ services:
       test: [ "CMD", "wget", "-qO-", "http://127.0.0.1:10411/actuator/health" ]
 
   trillion-alert-service:
-    <<: common-service
+    <<: *common-service
     image: ghcr.io/nhnacademy-be12-trillion/coupon-service:latest
     container_name: trillion-alert-service
     expose:
