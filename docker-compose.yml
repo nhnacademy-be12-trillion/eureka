@@ -360,7 +360,6 @@ services:
       - ./fluentd.conf:/fluentd/etc/fluent.conf
       - trillion-book-logs:/app/logs
       - fluentd-state:/fluentd/log
-      - TZ=Asia/Seoul
     networks:
       - trillion-book
 
