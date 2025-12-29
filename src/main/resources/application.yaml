@@ -30,9 +30,6 @@ eureka:
       default-open-for-traffic-count: 0
 
 management:
-  tracing:
-    sampling:
-      probability: 0.5 # 모든 로그를 찍는 설정이라 추후 조정 필요
   endpoints:
     web:
       exposure:
@@ -41,3 +38,7 @@ management:
 logging:
   pattern:
     level: "%d{yyyy-MM-dd HH:mm:ss.SSS} %5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
+  level:
+    root: INFO
+    com.netflix.discovery: WARN
+    com.netflix.eureka: WARN
