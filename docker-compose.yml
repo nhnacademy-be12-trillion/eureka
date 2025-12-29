@@ -1,11 +1,15 @@
-version: "3.8"
+x-base-service: &base-service
+  env_file:
+    - ./.env
+  networks:
+    - trillion-book
 
 # 공통 옵션용 anchor 정의
 x-common-service: &common-service
-  env_file:
-    - ./.env # 서비스마다 환경변수 파일 설정
-  networks:
-    - trillion-book # 컨테이너별 네트워크 설정
+  <<: *base-service
+  depends_on:
+    trillion-config-server:
+      condition: service_healthy
 
 x-health-default: &health-default
   interval: 10s
@@ -14,21 +18,20 @@ x-health-default: &health-default
 
 x-common-volumes: &common-volumes
   volumes:
-  - trillion-book-logs:/app/logs
+    - trillion-book-logs:/app/logs
 
 services:
   # ----------------------------------------
   # 핵심 인프라 서비스 (Discovery & Config)
   # ----------------------------------------
   trillion-config-server:
-    <<: *common-service
+    <<: *base-service
     image: ghcr.io/nhnacademy-be12-trillion/config-server:latest #workflow에서 등록한 이미지 이름과 일치해야함
     container_name: trillion-config-server
     ports:
       - "10418:10418"
     environment:    #서버에서 필요한 환경 설정 변수 주입(Eureka Workflow에서 생성한 .env 파일 에서 찾아옴)
       - SERVER_PORT=10418
-      - TZ=Asia/Seoul
       - CONFIG_PRIVATE_KEY=${CONFIG_PRIVATE_KEY} #SSH 내부의 keygen 폴더 하위의 github_rsa 공개키, 비밀키 형식을 맞춰서 설정함(config-repo Depoloy키 설정된 상태)
       - EUREKA_URL=http://be12-team1:nhnacademy123!@trillion-eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@trillion-eureka-peer2:10420/eureka/ #유레카 서버 주소 입력
       - LOG_FILENAME=trillion-config-peer
@@ -45,7 +48,6 @@ services:
       - "10419:10419"
     environment:
       - SERVER_PORT=10419
-      - TZ=Asia/Seoul
       - EUREKA_PEER_URL=http://be12-team1:nhnacademy123%21@trillion-eureka-peer2:10420/eureka/
       - HOSTNAME_ENV=trillion-eureka-peer1
       - LOG_FILENAME=trillion-eureka-peer1
@@ -62,7 +64,6 @@ services:
       - "10420:10420"
     environment:
       - SERVER_PORT=10420
-      - TZ=Asia/Seoul
       - EUREKA_PEER_URL=http://be12-team1:nhnacademy123%21@trillion-eureka-peer1:10419/eureka/
       - HOSTNAME_ENV=trillion-eureka-peer2
       - LOG_FILENAME=trillion-eureka-peer2
@@ -81,23 +82,12 @@ services:
       - "10400:10400"
     environment:
       - SERVER_PORT=10400
-      - TZ=Asia/Seoul
       - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@trillion-config-server:10418/
       - EUREKA_URL=http://be12-team1:nhnacademy123!@trillion-eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@trillion-eureka-peer2:10420/eureka/
       - LOG_FILENAME=trillion-gateway-peer
     healthcheck:
       <<: *health-default
       test: [ "CMD", "wget", "-qO-", "http://127.0.0.1:10400/actuator/health" ]
-
-#  gateway-peer2:
-#    <<: [ *common-service, *common-volumes ]
-#    image: ghcr.io/nhnacademy-be12-trillion/gateway:latest
-#    container_name: trillion-gateway-peer2
-#    environment:
-#      - SERVER_PORT=10401
-#      - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@config-server:10418/
-#      - EUREKA_URL=http://be12-team1:nhnacademy123!@trillion-eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@trillion-eureka-peer2:10420/eureka/
-#      - JWT_SECRET=${JWT_SECRET}
 
   # ----------------------------------------
   # 마이크로서비스 (Auth, Member, Book, Order, Coupon, Search)
@@ -111,7 +101,6 @@ services:
       - "127.0.0.1:10401:10401"
     environment:
       - SERVER_PORT=10401
-      - TZ=Asia/Seoul
       - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@trillion-config-server:10418/
       - EUREKA_URL=http://be12-team1:nhnacademy123!@trillion-eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@trillion-eureka-peer2:10420/eureka/
       - PAYCO_CLIENT_ID=${PAYCO_CLIENT_ID}
@@ -134,7 +123,6 @@ services:
       - "127.0.0.1:10403:10403"
     environment:
       - SERVER_PORT=10403
-      - TZ=Asia/Seoul
       - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@trillion-config-server:10418/
       - EUREKA_URL=http://be12-team1:nhnacademy123!@trillion-eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@trillion-eureka-peer2:10420/eureka/
       - PAYCO_CLIENT_ID=${PAYCO_CLIENT_ID}
@@ -158,7 +146,6 @@ services:
       - 10404
     environment:
       - SERVER_PORT=10404
-      - TZ=Asia/Seoul
       - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@trillion-config-server:10418/
       - EUREKA_URL=http://be12-team1:nhnacademy123!@trillion-eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@trillion-eureka-peer2:10420/eureka/
       - DB_PASSWORD=${DB_PASSWORD}
@@ -178,7 +165,6 @@ services:
       - 10405
     environment:
       - SERVER_PORT=10405
-      - TZ=Asia/Seoul
       - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@trillion-config-server:10418/
       - EUREKA_URL=http://be12-team1:nhnacademy123!@trillion-eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@trillion-eureka-peer2:10420/eureka/
       - DB_PASSWORD=${DB_PASSWORD}
@@ -197,7 +183,6 @@ services:
       - 10406
     environment:
       - SERVER_PORT=10406
-      - TZ=Asia/Seoul
       - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@trillion-config-server:10418/
       - EUREKA_URL=http://be12-team1:nhnacademy123!@trillion-eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@trillion-eureka-peer2:10420/eureka/
       - DB_PASSWORD=${DB_PASSWORD}
@@ -217,7 +202,6 @@ services:
       - 10407
     environment:
       - SERVER_PORT=10407
-      - TZ=Asia/Seoul
       - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@trillion-config-server:10418/
       - EUREKA_URL=http://be12-team1:nhnacademy123!@trillion-eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@trillion-eureka-peer2:10420/eureka/
       - DB_PASSWORD=${DB_PASSWORD}
@@ -236,7 +220,6 @@ services:
       - 10408
     environment:
       - SERVER_PORT=10408
-      - TZ=Asia/Seoul
       - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@trillion-config-server:10418/
       - EUREKA_URL=http://be12-team1:nhnacademy123!@trillion-eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@trillion-eureka-peer2:10420/eureka/
       - DB_PASSWORD=${DB_PASSWORD}
@@ -256,7 +239,6 @@ services:
       - 10409
     environment:
       - SERVER_PORT=10409
-      - TZ=Asia/Seoul
       - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@trillion-config-server:10418/
       - EUREKA_URL=http://be12-team1:nhnacademy123!@trillion-eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@trillion-eureka-peer2:10420/eureka/
       - DB_PASSWORD=${DB_PASSWORD}
@@ -274,7 +256,6 @@ services:
       - 10410
     environment:
       - SERVER_PORT=10410
-      - TZ=Asia/Seoul
       - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@trillion-config-server:10418/
       - EUREKA_URL=http://be12-team1:nhnacademy123!@trillion-eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@trillion-eureka-peer2:10420/eureka/
       - DB_PASSWORD=${DB_PASSWORD}
@@ -297,7 +278,6 @@ services:
       - 10411
     environment:
       - SERVER_PORT=10411
-      - TZ=Asia/Seoul
       - CONFIG_SERVER_URI=http://be12-team1:nhnacademy123!@trillion-config-server:10418/
       - EUREKA_URL=http://be12-team1:nhnacademy123!@trillion-eureka-peer1:10419/eureka/,http://be12-team1:nhnacademy123!@trillion-eureka-peer2:10420/eureka/
       - DB_PASSWORD=${DB_PASSWORD}
@@ -321,7 +301,6 @@ services:
     environment:
       - SERVER_PORT=10416
       - DOORAY_HOOK_URL=https://nhnacademy.dooray.com/services/3204376758577275363/4188022161261958885/ynq_yJcCQN2teFKyzp1-kQ
-      - TZ=Asia/Seoul
 
   # ----------------------------------------
   # 프론트엔드 서비스 (Spring Boot / Thymeleaf or Nginx static)
@@ -334,29 +313,16 @@ services:
       - "127.0.0.1:10402:10402"
     environment:
       - SERVER_PORT=10402
-      - TZ=Asia/Seoul
       - LOG_FILENAME=trillion-front-peer
-
-  # ----------------------------------------
-  # 로그 관련 설정
-  # ----------------------------------------
-#  filebeat:
-#    image: docker.elastic.co/beats/filebeat:8.11.0
-#    container_name: trillion-filebeat
-#    user: root
-#    networks:
-#      - trillion-book
-#    volumes:
-#      - ./filebeats.yml:/usr/share/filebeat/filebeat.yml:ro
-#      - trillion-book-logs:/logs:ro
-#    command: [ "filebeat", "-e", "--strict.perms=false" ]
-#    restart: unless-stopped
 
   trillion-fluentd:
     build:
       context: .
       dockerfile: Dockerfile.fluentd
     container_name: trillion-fluentd
+    depends_on:
+      trillion-gateway-peer:
+        condition: service_healthy
     volumes:
       - ./fluentd.conf:/fluentd/etc/fluent.conf
       - trillion-book-logs:/app/logs
