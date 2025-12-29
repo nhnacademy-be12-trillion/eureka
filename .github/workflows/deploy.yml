@@ -1,0 +1,166 @@
+name: Microservice A CI/CD (Optimized)
+
+# 1. 실행 조건
+on:
+  push:
+    branches:
+      - dev
+  workflow_dispatch:
+
+# 2. 전역 변수
+env:
+  REGISTRY_OWNER: nhnacademy-be12-trillion # 조직 이름
+  REGISTRY: ghcr.io # 깃허브 패키지
+  IMAGE_NAME: eureka # 도커 이미지 이름
+  JAVA_VERSION: '21' # 자바 버전
+  DEPLOY_DIR: ~/msa-project # Deploy 파일 경로
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write # 패키지 등록 권한 필수
+
+    steps:
+      - name: 📦 Checkout Code
+        uses: actions/checkout@v4
+
+      # --- 1. Java 환경 설정 및 JAR 파일 빌드 (⭐ Maven용으로 수정) ---
+      - name: ⚙️ Set up Java and Build JAR
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: 🔨 Build JAR file with Maven
+        run: |
+          mvn clean package -DskipTests
+
+      # --- 2. Docker 이미지 빌드 및 푸시 ---
+      - name: 🔑 Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          username: ${{ env.REGISTRY_OWNER }}
+          password: ${{ secrets.GHCR_TOKEN }}
+          registry: ${{ env.REGISTRY }}
+
+      - name: 🏷️ Set up image tags
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.REGISTRY_OWNER }}/${{ env.IMAGE_NAME }} # 예시: ghcr.io/nhnacademy-be12-trillion/coupon-service:latest
+          tags: |
+            type=raw,value=latest # latest 태그 고정
+
+      - name: 🔨 Build and Push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile # root 경로의 Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+
+      - name: Transfer docker-compose.yml
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_IP }}
+          username: ${{ secrets.SSH_ID }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          port: ${{ secrets.SSH_PORT }}
+          source: "docker-compose.yml"
+          target: "${{ env.DEPLOY_DIR }}" # DEPLOY_DIR 경로에 docker-compose 파일 복사
+
+
+      # --- 3. 파일 전송 및 원격 배포 ---
+      - name: 📡 Transfer and Deploy via SSH (Optimized)
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_IP }}
+          username: ${{ secrets.SSH_ID }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            SERVICE_NAME1="trillion-eureka-peer1"
+            SERVICE_NAME2="trillion-eureka-peer2"
+            CONFIG_SERVICE="trillion-config-server"
+            # docker-compose 에 설정된 서비스 이름
+                    
+            echo "SSH 접속 및 배포 디렉토리 이동..."
+            mkdir -p ${{ env.DEPLOY_DIR }}
+            cd ${{ env.DEPLOY_DIR }}
+            # DEPLOY_DIR 없으면 만듦, 폴더 이동
+                    
+            echo "환경 변수 파일 생성 시작..."
+            echo "DB_PASSWORD=\"${{ secrets.DB_PASSWORD }}\"" > .env
+            echo "CONFIG_PRIVATE_KEY=\"${{ secrets.CONFIG_PRIVATE_KEY }}\"" >> .env
+            echo "PAYCO_CLIENT_ID=\"${{ secrets.PAYCO_CLIENT_ID}}\"" >> .env
+            echo "PAYCO_CLIENT_SECRET=\"${{ secrets.PAYCO_CLIENT_SECRET }}\"" >> .env
+            echo "GOOGLE_CLIENT_ID=\"${{ secrets.GOOGLE_CLIENT_ID }}\"" >> .env
+            echo "GOOGLE_CLIENT_SECRET=\"${{ secrets.GOOGLE_CLIENT_SECRET }}\"" >> .env
+            echo "SMTP_PASSWORD=\"${{ secrets.SMTP_PASSWORD }}\"" >> .env
+            echo "JWT_SECRET=\"${{ secrets.JWT_SECRET }}\"" >> .env
+            echo "ALADIN_TTBKEY=\"${{ secrets.ALADIN_TTBKEY }}\"" >> .env
+            echo "GEMINI_KEY=\"${{ secrets.GEMINI_KEY }}\"" >> .env
+            echo "TOSS_KEY=\"${{ secrets.TOSS_KEY }}\"" >> .env
+            echo "GEMINI_SEARCH_KEY=\"${{ secrets.GEMINI_SEARCH_KEY }}\"" >> .env
+            echo "ES_HOST=\"${{ secrets.ES_HOST }}\"" >> .env
+            echo "ES_PASSWORD=\"${{ secrets.ES_PASSWORD }}\"" >> .env
+            echo "OLLAMA_BASE_URL=\"${{ secrets.OLLAMA_BASE_URL }}\"" >> .env
+            echo "RERANKER_BASE_URL=\"${{ secrets.RERANKER_BASE_URL }}\"" >> .env
+            echo "MINIO_URL=\"${{ secrets.MINIO_URL }}\"" >> .env
+            echo "MINIO_ACCESS_KEY=\"${{ secrets.MINIO_ACCESS_KEY }}\"" >> .env
+            echo "MINIO_SECRET_KEY=\"${{ secrets.MINIO_SECRET_KEY }}\"" >> .env  
+            echo "REDIS_PW=\"${{ secrets.REDIS_PW }}\"" >> .env  
+            echo "MAIL_APP_PASSWORD=\"${{ secrets.MAIL_APP_PASSWORD }}\"" >> .env  
+            # github Action secrets에 기록된 변수들을 가상머신 .env 파일에 기록
+                  
+            echo "환경 변수 파일 생성 완료!"
+            
+            echo "Docker Registry 로그인..."
+            echo ${{ secrets.GHCR_TOKEN }} | docker login ${{ env.REGISTRY }} -u ${{ env.REGISTRY_OWNER }} --password-stdin
+            
+            echo "최신 Config Server 이미지 Pull 및 재시작..."
+            wait_health () {
+            URL=$1
+            echo "Waiting for health: $URL"
+            for i in $(seq 1 60); do
+            # health endpoint가 basic auth 필요하면 -u 사용
+            if curl -fsS -u ${{ secrets.EUREKA_AUTH }} "$URL" | grep -q '"status":"UP"'; then
+            echo "✅ UP: $URL"
+            return 0
+            fi
+            sleep 5
+            done
+            echo "❌ Health check timeout: $URL"
+            return 1 
+            }
+            # 롤링 작업을 위한 wait_health 함수 설정
+
+            # 아래는 Docker 컨테이너 실행 명령어
+            
+            # Eureka peer1
+            echo "Eureka peer1 update..."
+            docker compose rm -f ${SERVICE_NAME1}
+            docker compose pull ${SERVICE_NAME1}
+            docker compose up -d --no-deps ${SERVICE_NAME1}
+            wait_health "http://127.0.0.1:10419/actuator/health" || exit 1
+            
+            # Eureka peer2
+            echo "Eureka peer2 update..."
+            docker compose rm -f ${SERVICE_NAME2}
+            docker compose pull ${SERVICE_NAME2}
+            docker compose up -d --no-deps ${SERVICE_NAME2}
+            wait_health "http://127.0.0.1:10420/actuator/health" || exit 1
+            
+            # Config Server
+            echo "Config Server update..."
+            docker compose rm -f ${CONFIG_SERVICE}
+            docker compose pull ${CONFIG_SERVICE}
+            docker compose up -d --no-deps ${CONFIG_SERVICE}
+            wait_health "http://127.0.0.1:10418/actuator/health" || exit 1
+            
+            docker logout ${{ env.REGISTRY }}
+            
+            echo "Eureka Cluster 롤링 배포 완료!"

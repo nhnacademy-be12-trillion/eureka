@@ -1,30 +1,44 @@
 spring:
   application:
-    name: eureka-server
+    name: eureka
   lifecycle:
     timeout-per-shutdown-phase: 10s
   security:
     user:
       name: be12-team1
-      password: "nhnacademy123!" # <--- 서버 B가 접속할 때 사용
+      password: nhnacademy123!
 
 server:
   shutdown: graceful
-  port: 10419 # <--- A의 포트
+  port: ${SERVER_PORT:10419}
 
 eureka:
+  server:
+    peer-node-read-timeout-ms: 5000
+
   client:
-    # 이중화를 위해 서로에게 등록해야 합니다. (기존: false -> 수정: true)
     register-with-eureka: true
-    # 이중화를 위해 서로의 레지스트리를 가져와야 합니다. (기존: false -> 수정: true)
     fetch-registry: true
     service-url:
-      # 🎯 상대방(Peer B: 10420)의 주소를 defaultZone에 지정합니다.
-      defaultZone: http://${spring.security.user.name}:${spring.security.user.password}@127.0.0.1:10420/eureka/
+      defaultZone: ${EUREKA_PEER_URL}
 
   instance:
     prefer-ip-address: true
-    instance-id: ${spring.application.name}:${server.port}
+    instance-id: ${spring.application.name}:${HOSTNAME_ENV}:${server.port}
+    hostname: ${HOSTNAME_ENV:localhost}
     registry:
-      # 피어 복제 시 0으로 설정하는 것이 일반적이며 올바른 설정입니다.
       default-open-for-traffic-count: 0
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "health,info,prometheus"
+
+logging:
+  pattern:
+    level: "%d{yyyy-MM-dd HH:mm:ss.SSS} %5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
+  level:
+    root: INFO
+    com.netflix.discovery: WARN
+    com.netflix.eureka: WARN

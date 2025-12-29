@@ -17,18 +17,20 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
 
-@EnableWebSecurity(debug = false)
+@EnableWebSecurity
 @Configuration
 public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.csrf(csrf -> csrf.ignoringRequestMatchers("/eureka/**"))
+        http.csrf(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(authorizeRequests ->
+                    //eureka 서비스를 등록할 때 요청은 모두 열어둬야 함.
                 authorizeRequests.requestMatchers("/eureka/**").permitAll()
+                        //eureka 요청을 통할때 헬스체크/모니터링은 인증 필요 (yml 파일 security user 정보)
                         .anyRequest().authenticated());
-
 
         http.httpBasic(Customizer.withDefaults());
 
